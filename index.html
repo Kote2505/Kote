@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kote — Devis en ligne</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563EB">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kote">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- ↓ INTEGRATED: Sora + DM Sans required by frontpage.css (previously missing — caused silent font fallback in all marketing sections) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/frontpage.css">
+
+<!-- ── App-shell isolation guard ───────────────────────────────────────────
+     frontpage.css uses element-level selectors (button{}, nav a{}, header{})
+     that share specificity (0,0,1 or 0,0,2) with style.css's base rules.
+     Since frontpage.css loads last, it silently wins on equal-specificity ties.
+     These class-level rules (specificity 0,1,0+) definitively protect the three
+     production components that were visually broken: header CTA, summary button,
+     nav links. Scoping fixes in frontpage.css are the primary fix; this block
+     is the secondary safety net in case any edge case slips through.
+─────────────────────────────────────────────────────────────────────────── -->
+<style>
+  /* 1. Restore header CTA button (was invisible: white text on background:none) */
+  .hdr-cta {
+    background: var(--blue, #2463EB) !important;
+    color: #fff !important;
+  }
+
+  /* 2. Restore summary "Ajouter au panier" button */
+  .cs-add-btn {
+    background: var(--blue, #2463EB) !important;
+    color: #fff !important;
+  }
+
+  /* 3. Restore production nav link color
+        (was overridden to var(--text-secondary) = #5a6270 gray by nav a{}) */
+  .hdr-nav-link {
+    color: var(--text-primary, #0f1117) !important;
+    font-family: inherit !important;
+    padding: revert !important;
+    border-radius: revert !important;
+  }
+</style>
+
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="logo">
+      <div class="logo-mark" id="clientLogoSlot">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 394.5 116.2" style="height:100%;width:auto;display:block">
+  <path fill="#2463EB" d="M115,0v24.1c0,7.9-6.4,14.2-14.2,14.2H76.7V0H115z M38.3,0H0v115h38.3V76.7h24.6c7.6,0,13.8-6.2,13.8-13.8V38.3H38.3V0z"/>
+  <path fill="#606060" d="M100.1,114.5H76.5v-38h38v23.6C114.5,108.1,108.1,114.5,100.1,114.5z M175.2,116.2c9.2,0,17.5-1.9,24.9-5.8c7.4-3.8,13.1-9.4,17.4-16.6c4.2-7.2,6.3-15.6,6.3-25.1c0-9.6-2.1-17.9-6.3-25c-4.2-7.1-10-12.6-17.3-16.5c-7.3-3.8-15.6-5.8-24.8-5.8c-9.2,0-17.5,1.9-24.8,5.8c-7.3,3.8-13.1,9.3-17.3,16.5c-4.2,7.1-6.3,15.5-6.3,25c0,9.7,2.1,18.1,6.3,25.2c4.2,7.1,9.9,12.6,17.2,16.5C157.7,114.3,165.9,116.2,175.2,116.2z M175.2,88.2c-4.5,0-8.2-1.6-11-4.9c-2.9-3.3-4.3-8.1-4.3-14.5c0-6.3,1.5-11,4.4-14.3s6.6-4.9,11-4.9c4.4,0,8.1,1.6,11.1,4.9c3,3.3,4.5,8.1,4.5,14.3c0,6.3-1.5,11.1-4.5,14.4C183.4,86.5,179.7,88.2,175.2,88.2z M282.1,87.5c-2.7,0-4.7-0.5-5.8-1.6c-1.2-1.1-1.7-2.9-1.7-5.4v-31h16.8V22.6h-16.8V0.2H242v22.4h-11.4v26.8H242v30.5c0,23.4,11.8,35.1,35.4,35.1h14V87.5H282.1z M394.5,67.8c0-9.4-2-17.6-5.9-24.6c-4-7-9.4-12.3-16.5-16.1c-7-3.7-15.1-5.6-24.2-5.6c-9.2,0-17.4,1.9-24.5,5.8c-7.1,3.8-12.6,9.3-16.6,16.4c-4,7.1-5.9,15.5-5.9,25.1c0,9.7,2,18.1,6,25.2c4,7.1,9.6,12.6,16.6,16.5c7.1,3.8,15.2,5.8,24.3,5.8c7.6,0,14.5-1.4,20.8-4.3c6.3-2.9,11.4-6.8,15.6-11.8c4.1-5,6.9-10.7,8.3-17h-34.4c-2.3,4.8-6.2,7.2-11.5,7.2c-3.8,0-7-1.2-9.5-3.7c-2.5-2.5-3.9-6.2-4.2-11.3h61.1C394.4,72.8,394.5,70.3,394.5,67.8z M333.1,59.7c0.8-4.2,2.4-7.3,4.9-9.5c2.5-2.1,5.8-3.2,9.7-3.2c4,0,7.2,1.1,9.9,3.4c2.6,2.3,4,5.4,4,9.3H333.1z"/>
+</svg>
+      </div>
+    </div>
+    <nav class="hdr-nav">
+      <a class="hdr-nav-link" href="#configurateur">Configurateur</a>
+      <a class="hdr-nav-link" href="#produits">Produits</a>
+      <a class="hdr-nav-link" href="#comment-ca-marche">Comment ça marche</a>
+      <a class="hdr-nav-link" href="#faq">FAQ</a>
+    </nav>
+    <div class="hdr-r">
+      <a href="#suivi" class="btn-icon pos-rel" title="Suivi de commande" style="text-decoration:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </a>
+      <button class="btn-icon pos-rel" id="authHeaderBtn" title="Se connecter"
+        onclick="AUTH.openSignIn()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+      <button class="btn-icon pos-rel" title="Panier" onclick="CART.open()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
+        <span class="cbadge" id="cartBadge"></span>
+      </button>
+      <button class="hdr-cta" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">
+        Configurer mon Impression
+      </button>
+    </div>
+  </div>
+</header>
+
+
+
+<!-- ══ HERO ═════════════════════════════════════════════
+     INTEGRATED from landing.html: rich hero replaces the former
+     simple .fw-hero placeholder. CTA links → #vCfg (real configurator).
+     Parallax bg driven by the scroll handler below (heroSection var).
+     Font animations rely on Sora/DM Sans now loaded in <head>.
+════════════════════════════════════════════════════════ -->
+<section class="hero" aria-label="Section principale">
+  <div class="hero-parallax-bg" id="heroBg" aria-hidden="true"></div>
+  <div class="hero-grid-bg" aria-hidden="true"></div>
+  <div class="hero-geo hero-geo-1" aria-hidden="true"></div>
+  <div class="hero-geo hero-geo-2" aria-hidden="true"></div>
+  <div class="hero-geo hero-geo-3" aria-hidden="true"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-eyebrow"><span class="hero-eyebrow-dot" aria-hidden="true"></span>Service Web-to-Print professionnel</div>
+        <h1>
+          <span class="line"><span class="word-anim" style="animation-delay:.1s;">Imprimez vos supports</span></span>
+          <span class="line"><span class="word-anim" style="animation-delay:.28s;"><span class="hero-highlight">professionnels</span></span></span>
+          <span class="line"><span class="word-anim" style="animation-delay:.46s;">en quelques clics</span></span>
+        </h1>
+        <p class="hero-sub">Configurez vos produits, obtenez un prix instantané et suivez votre commande depuis une interface simple et ultra-rapide.</p>
+        <div class="hero-cta">
+          <a href="#vCfg" class="btn btn-primary" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'});return false;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+            Configurer mon produit
+          </a>
+          <a href="#suivi" class="btn btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            Suivre ma commande
+          </a>
+        </div>
+        <div class="hero-trust" role="list">
+          <div class="trust-item" role="listitem"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Prix instantané</span><small>Tarif calculé en direct</small></div>
+          <div class="trust-item" role="listitem"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Contrôle fichiers</span><small>Vérification prépresse</small></div>
+          <div class="trust-item" role="listitem"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Production rapide</span><small>Dès 24h en express</small></div>
+          <div class="trust-item" role="listitem"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><span>Suivi temps réel</span><small>Notifications à chaque étape</small></div>
+        </div>
+      </div>
+      <div class="hero-right" aria-hidden="true">
+        <div class="hero-cards-wrap">
+          <div class="hero-card hc1"><img src="https://picsum.photos/seed/kote-biz1/230/145" alt="" width="230" height="145"><div class="card-label"><span class="dot"></span>Cartes de visite</div></div>
+          <div class="hero-card hc2"><img src="https://picsum.photos/seed/kote-fly2/200/126" alt="" width="200" height="126"><div class="card-label"><span class="dot"></span>Flyers A5</div></div>
+          <div class="hero-card hc3"><img src="https://picsum.photos/seed/kote-bro3/210/135" alt="" width="210" height="135"><div class="card-label"><span class="dot"></span>Brochures</div></div>
+          <div class="hero-card hc4"><img src="https://picsum.photos/seed/kote-aff4/195/120" alt="" width="195" height="120"><div class="card-label"><span class="dot"></span>Affiches</div></div>
+          <div class="hero-card hc5"><img src="https://picsum.photos/seed/kote-stk5/175/110" alt="" width="175" height="110"><div class="card-label"><span class="dot"></span>Stickers</div></div>
+          <div class="hero-card hc6"><img src="https://picsum.photos/seed/kote-rul6/160/100" alt="" width="160" height="100"><div class="card-label"><span class="dot"></span>Roll-up</div></div>
+          <div class="hero-badge">
+            <div class="hero-badge-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+            <div class="hero-badge-number">4.9</div>
+            <div class="hero-badge-text">+12 000 commandes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BODY ════════════════════════════════════════════ -->
+<div class="body">
+
+  <!-- ══ CONFIGURATOR TITLE ═══════════════════════════════ -->
+  <section class="config-header" id="configurateur">
+    <div class="section-tag">TARIFICATION INSTANTANÉE</div>
+    <h2 class="section-title">Configurez votre impression</h2>
+    <p class="section-subtitle">Sélectionnez votre catégorie, personnalisez vos options et obtenez votre prix en Dh en temps réel.</p>
+  </section>
+
+  <div class="main">
+    <!-- Category tab bar — now vertical sidebar -->
+    <div class="cat-tabs-section">
+      <nav class="sidebar" id="sidebar">
+
+      <div class="sb-foot" id="sbFoot">
+        <div class="sb-foot-row1">
+          <div class="sb-db-state">
+            <span class="sb-db-dot" id="dbDot"></span>
+            <span class="sb-db-st" id="dbStatus" title="">Connexion…</span>
+          </div>
+          <div class="sb-db-toggle">
+            <button class="sb-db-btn" id="dbBtnJson" onclick="DB_MOD.setSource('json')">JSON</button>
+            <button class="sb-db-btn on" id="dbBtnSupa" onclick="DB_MOD.setSource('supabase')">Supabase</button>
+          </div>
+          <input type="file" id="dbFile" accept=".json" style="display:none" onchange="DB_MOD.onFile(this)">
+        </div>
+        <div class="sb-foot-row2">
+          <span id="clientFooterVersion">Kote UD1804R01</span>
+          <span id="clientFooterCopy">Kote © 2026</span>
+        </div>
+        <span id="supaSyncSt" class="supa-sync-st" style="display:none"></span>
+      </div>
+      </nav>
+    </div><!-- /cat-tabs-section -->
+
+    <!-- Center column: config views -->
+    <div class="main-views">
+      <!-- View: no DB loaded -->
+      <div class="center" id="vDB">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/></svg>
+        <div class="c-title" id="vDBTitle">Connexion en cours…</div>
+        <p class="c-sub" id="vDBSub">Chargement du catalogue <strong>Kdigital</strong>…</p>
+        <button class="btn btn-p" id="vDBBtn" style="display:none" onclick="location.reload()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>
+          Réessayer
+        </button>
+      </div>
+
+      <!-- View: product config -->
+      <div class="cfg-area" id="vCfg" style="display:none">
+        <!-- Mobile: back to catalogue bar -->
+        <div class="mob-back-bar" id="mobBackBar" onclick="UI.toggleMobileMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="15 18 9 12 15 6"/></svg>
+          Retour au catalogue
+        </div>
+        <div class="edit-banner" id="editBanner">
+          <span>✏️ Modification en cours</span>
+          <button class="edit-cancel" onclick="UI.cancelEdit()">Annuler</button>
+        </div>
+
+        <div class="cfg-hdr" id="cfgHdr"></div>
+        <div class="cfg-scroll" id="cfgScroll"></div>
+        <div class="cfg-footer" id="cfgFooter"></div>
+      </div>
+
+      <!-- View: checkout confirmation -->
+      <div class="confirm-wrap" id="vConfirm" style="display:none">
+        <div class="confirm-box" id="confirmBox"></div>
+      </div>
+    </div>
+
+    <!-- Right column: live config summary panel -->
+    <div id="cfgSummary">
+      <!-- Header -->
+      <div class="cs-hdr stripe-hide">
+        <span class="cs-hdr-title" id="csSummaryProductTitle">Résumé de commande</span>
+      </div>
+
+      <!-- Empty / waiting state (shown until a product is selected) -->
+      <div class="cs-empty" id="csSummaryEmpty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="36" height="36"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+        <div class="cs-empty-txt">Aucun produit sélectionné</div>
+        <div class="cs-empty-sub">Choisissez un produit pour voir le résumé</div>
+      </div>
+
+      <!-- Populated state (hidden until product is configured) -->
+      <div id="csSummaryContent" class="stripe-content" style="display:none">
+        <!-- Config rows -->
+        <div class="cs-rows stripe-data" id="csSummaryRows"></div>
+
+        <!-- Horizontal Footer with Price and CTA -->
+        <div class="cs-footer cs-footer-horizontal stripe-actions" id="csSummaryPrice">
+          <div class="cs-price-left">
+            <div class="cs-price-label">Total HT</div>
+            <div class="cs-price-amount" id="csSummaryAmount">—</div>
+          </div>
+          <div class="cs-qu-block">
+            <div class="cs-qu-row" id="csSummaryQtyBlock" style="display:none">
+              <span class="cs-qu-lbl">Quantité</span>
+              <span class="cs-qu-val cs-qu-val-blue" id="csSummaryQtyVal">—</span>
+            </div>
+            <div class="cs-qu-row">
+              <span class="cs-qu-lbl">PU HT</span>
+              <span class="cs-qu-val" id="csSummaryUnit">—</span>
+            </div>
+          </div>
+          <button class="cs-add-btn cs-add-btn-horizontal" id="csSummaryAddBtn">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            Ajouter au panier
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlays -->
+  <div class="mob-sb-overlay" id="mobSbOverlay" onclick="UI.toggleMobileMenu()"></div>
+  <div class="cart-overlay"   id="cartOverlay"   onclick="CART.close()"></div>
+</div>
+
+<!-- ══ CART DRAWER (slide-out, original behavior) ══════ -->
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-hdr">
+    <div class="cart-title-r">
+      <span class="cart-title">Ma demande</span>
+      <span class="c-count" id="cartCount">0</span>
+    </div>
+    <button class="cart-x" onclick="CART.close()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="cart-body"   id="cartBody"></div>
+  <div class="cart-opts"   id="cartOpts" style="display:none"></div>
+  <div class="cart-footer" id="cartFooter"></div>
+</div>
+<div class="offline-bar" id="offlineBar" style="display:none">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.39M10.71 5.05A16 16 0 0122.56 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+  Mode hors-ligne — données mises en cache
+</div>
+
+<!-- ══ ORDER FORM OVERLAY ════════════════════════════════
+     Rendered dynamically by ORDERS.open() / ORDERS._renderForm()
+════════════════════════════════════════════════════════ -->
+<div id="ordOverlay">
+  <div id="ordBox"></div>
+</div>
+
+<!-- ══ SCRIPTS ═══════════════════════════════════════════
+     ROLE declared first — all shared modules read this value.
+     client.html omits: admin.js, js/invoice.js
+════════════════════════════════════════════════════════ -->
+<script>var ROLE = 'client';</script>
+<script src="js/kote-types.js"></script>
+<script src="js/config.js"></script>
+<script src="js/kote-core.js"></script>
+<script src="js/catalog-sections.js"></script>
+<script src="js/catalog-ui.js"></script>
+<script src="js/catalog-briefing.js"></script>
+<script src="js/orders-cart.js"></script>
+<script src="js/orders-invoice.js"></script>
+<script src="js/orders-auth.js"></script>
+<script src="js/orders-core.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script>
+/* ── Sync logo + shop name from DB on boot ── */
+APP.whenReady(function(db) {
+  var shopName = db && db.shop && db.shop.name;
+  var logoSvg  = db && db.shop && db.shop.logo_svg && db.shop.logo_svg.trim();
+
+  /* Page title */
+  if (shopName) document.title = shopName + ' \u2014 Devis en ligne';
+
+  /* Header logo */
+  if (logoSvg && logoSvg.startsWith('<svg')) {
+    var slot = document.getElementById('clientLogoSlot');
+    if (slot) {
+      var norm = logoSvg.replace(/<svg([^>]*)>/i, function(m, a) {
+        var c = a.replace(/\s*(width|height|style)\s*=\s*(?:"[^"]*"|'[^']*')/gi, '');
+        return '<svg' + c + ' style="height:100%;width:auto;display:block">';
+      });
+      slot.innerHTML = norm;
+    }
+  }
+
+  /* Footer text */
+  var ver  = document.getElementById('clientFooterVersion');
+  var copy = document.getElementById('clientFooterCopy');
+  if (shopName) {
+    if (ver)  ver.textContent  = shopName;
+    if (copy) copy.textContent = shopName + ' \u00a9 ' + new Date().getFullYear();
+  }
+});
+</script>
+<script>
+/* ── cfgSummary bridge (robust) ────────────────────────────
+   Reads live config: tries CFG global (many property names)
+   then falls back to DOM scraping. Triggers on MutationObserver
+   + 400 ms poll. Price extracted via selector OR regex on cfgFooter.
+──────────────────────────────────────────────────────────── */
+(function () {
+  var empty    = document.getElementById('csSummaryEmpty');
+  var content  = document.getElementById('csSummaryContent');
+  var rowsEl   = document.getElementById('csSummaryRows');
+  var amountEl = document.getElementById('csSummaryAmount');
+  var unitEl   = document.getElementById('csSummaryUnit');
+  var titleEl  = document.getElementById('csSummaryProductTitle');
+  var delivEl  = document.getElementById('csSummaryDelivery');
+  var delivTxt = document.getElementById('csSummaryDeliveryTxt');
+  var addBtn   = document.getElementById('csSummaryAddBtn');
+
+  function labelRow(lbl, val) {
+    return '<div class="cs-row"><span class="cs-row-lbl">'+lbl+'</span>'
+         + '<span class="cs-row-val">'+val+'</span></div>';
+  }
+  function labelRowQty(val) {
+    return '<div class="cs-row cs-row-qty"><span class="cs-row-lbl">Quantité</span>'
+         + '<span class="cs-row-val cs-qty-val">'+val+'</span></div>';
+  }
+
+  /* First truthy value from [[obj,key], ...] pairs */
+  function first(pairs) {
+    for (var i = 0; i < pairs.length; i++) {
+      var o = pairs[i][0], k = pairs[i][1];
+      if (o && o[k]) return String(o[k]).trim();
+    }
+    return '';
+  }
+
+  /* Text of first matching element inside root */
+  function txt(sel, root) {
+    var el = (root || document).querySelector(sel);
+    return el ? el.textContent.trim().replace(/\s+/g, ' ') : '';
+  }
+
+  /* Selected <option> text */
+  function selTxt(sel, root) {
+    var el = (root || document).querySelector(sel);
+    if (!el || el.selectedIndex < 0) return '';
+    return (el.options[el.selectedIndex].text || '').trim();
+  }
+
+  /* Walk upward from labels containing hint, find active pill nearby */
+  function nearLabel(container, hint) {
+    if (!container) return '';
+    hint = hint.toLowerCase();
+    var labels = container.querySelectorAll(
+      'label,.s-lbl,[class*="lbl"],[class*="label"],[class*="section-title"],b,strong,small,span'
+    );
+    for (var i = 0; i < labels.length; i++) {
+      if (labels[i].textContent.toLowerCase().indexOf(hint) < 0) continue;
+      var parent = labels[i].parentElement;
+      for (var d = 0; d < 5 && parent; d++, parent = parent.parentElement) {
+        var a = parent.querySelector(
+          '.pill.on,.pill.active,.seg-btn.on,.seg-btn.active,.chip.on,.chip.active,button.on,button.active'
+        );
+        if (a) return a.textContent.trim().replace(/\s+/g, ' ');
+      }
+    }
+    return '';
+  }
+
+  function refresh() {
+    var vCfg      = document.getElementById('vCfg');
+    var cfgScroll = document.getElementById('cfgScroll');
+    var cfgFooter = document.getElementById('cfgFooter');
+    var cfg       = (typeof CFG !== 'undefined') ? CFG : {};
+
+    /* Only show content when the configurator is active and populated */
+    var active = vCfg && vCfg.style.display !== 'none'
+              && cfgScroll && cfgScroll.children.length > 0;
+    if (!active) {
+      if (titleEl) titleEl.textContent = 'Résumé de commande';
+      empty.style.display = ''; content.style.display = 'none'; return;
+    }
+
+    /* Need at least a product name */
+    var product = first([[cfg,'product'],[cfg,'produit'],[cfg,'productName'],[cfg,'name'],[cfg,'prod']]);
+    if (!product) product = txt('#cfgProductsPills .cfg-prod-pill.on')
+                         || txt('#cfgHdr [class*="title"],[class*="name"],h2,h3,strong');
+    if (!product) {
+      empty.style.display = ''; content.style.display = 'none'; return;
+    }
+
+    empty.style.display = 'none'; content.style.display = '';
+    if (titleEl) titleEl.textContent = product;
+
+    /* Category */
+    var category = first([[cfg,'category'],[cfg,'categorie'],[cfg,'cat'],[cfg,'section']]);
+    if (!category) {
+      var catEl = document.querySelector('#sidebar > *.on:not(#sbFoot),#sidebar > *.active:not(#sbFoot)');
+      if (catEl) {
+        var lbl = catEl.querySelector('.sb-lbl,[class*="lbl"],[class*="label"]');
+        category = (lbl || catEl).textContent.trim().replace(/\s+/g,' ');
+      }
+    }
+
+    /* Format */
+    var format = first([[cfg,'format'],[cfg,'size'],[cfg,'taille']]);
+    if (!format) format = nearLabel(cfgScroll, 'format');
+
+    /* Impression */
+    var impression = first([[cfg,'impression'],[cfg,'sides'],[cfg,'recto'],[cfg,'faces']]);
+    if (!impression) impression = nearLabel(cfgScroll, 'impression');
+
+    /* Support */
+    var support = first([[cfg,'support'],[cfg,'paper'],[cfg,'papier'],[cfg,'substrate']]);
+    if (!support) support = selTxt('select[name*="support"],select[id*="support"]', cfgScroll);
+    if (!support) {
+      var sels = cfgScroll ? cfgScroll.querySelectorAll('select') : [];
+      if (sels.length) support = sels[0].options[sels[0].selectedIndex]
+        ? sels[0].options[sels[0].selectedIndex].text.trim() : '';
+    }
+
+    /* Quantité — only trust explicit cfg state or a visually-active pill.
+       Range input and nearLabel are too greedy and invent values pre-selection. */
+    var qty = first([[cfg,'qty'],[cfg,'quantity'],[cfg,'quantite'],[cfg,'qte'],[cfg,'copies']]);
+    if (!qty) {
+      /* Look only for pills that carry an explicit active/selected state */
+      var qtySection = cfgScroll && cfgScroll.querySelector(
+        '[class*="quantit"],[class*="qty"],[data-section*="qty"],[data-section*="quantit"]'
+      );
+      var activePill = qtySection && qtySection.querySelector(
+        '.on,.active,.selected,[aria-selected="true"],[data-active="true"]'
+      );
+      if (activePill) {
+        var raw = activePill.textContent.trim().replace(/[^\d]/g,'');
+        if (raw) qty = raw;
+      }
+    }
+
+    /* Finition */
+    var finition = first([[cfg,'finition'],[cfg,'finish'],[cfg,'coating']]);
+    if (!finition) finition = nearLabel(cfgScroll, 'finition');
+
+    /* Délai */
+    var delai = first([[cfg,'delai'],[cfg,'delay'],[cfg,'turnaround']]);
+    if (!delai) delai = selTxt('select[name*="delai"],select[id*="delai"]', cfgScroll);
+    if (!delai) {
+      var sels2 = cfgScroll ? cfgScroll.querySelectorAll('select') : [];
+      if (sels2.length >= 2) {
+        var last = sels2[sels2.length-1];
+        delai = last.options[last.selectedIndex] ? last.options[last.selectedIndex].text.trim() : '';
+      }
+    }
+    var conception = first([[cfg,'conception'],[cfg,'fichier'],[cfg,'design']]);
+    if (!conception) conception = nearLabel(cfgScroll, 'conception');
+    if (!conception) {
+      var concBtn = cfgScroll && cfgScroll.querySelector('[class*="conc"] .active,[class*="file"] .active,[class*="conc"] [class*="sel"],[class*="file"] [class*="sel"]');
+      if (concBtn) conception = concBtn.textContent.trim().split('\n')[0].trim();
+    }
+
+    /* Build rows */
+    var rows = '';
+    if (category)   rows += labelRow('Catégorie',  category);
+    if (format)     rows += labelRow('Format',     format);
+    if (impression) rows += labelRow('Impression', impression);
+    if (support)    rows += labelRow('Support',    support);
+    if (finition)   rows += labelRow('Finition',   finition);
+    if (delai)      rows += labelRow('Délai',      delai);
+    rowsEl.innerHTML = rows;
+
+    /* Update Quantity Block */
+    var qtyBlock = document.getElementById('csSummaryQtyBlock');
+    var qtyVal = document.getElementById('csSummaryQtyVal');
+    if (qtyBlock && qtyVal) {
+      if (qty) {
+        qtyBlock.style.display = 'flex';
+        qtyVal.textContent = Number(qty).toLocaleString('fr-FR') + ' ex.';
+      } else {
+        qtyBlock.style.display = 'none';
+      }
+    }
+
+    /* Price — target .q-total to avoid grabbing the whole .q-price container */
+    var price = '';
+    if (cfgFooter) {
+      var qTotalEl = cfgFooter.querySelector('.q-total');
+      if (qTotalEl) {
+        price = qTotalEl.textContent.trim().replace(/\s+/g,' ');
+      } else {
+        var pEl = cfgFooter.querySelector('[class*="prix"],[class*="amount"],[class*="ttc"],[data-price]');
+        if (pEl) price = pEl.textContent.trim();
+        if (!price) {
+          var m = cfgFooter.textContent.match(/(\d[\d\s]*[.,]\d+\s*Dh)/i);
+          if (m) price = m[1].trim();
+        }
+      }
+    }
+    if (!price) price = first([[cfg,'price'],[cfg,'prix'],[cfg,'total'],[cfg,'amount']]);
+    amountEl.textContent = price || '—';
+
+    /* Unit price — read from .q-unit (already computed by the app), fallback to division */
+    if (unitEl) {
+      var unitRaw = '';
+      if (cfgFooter) {
+        var qUnitEl = cfgFooter.querySelector('.q-unit');
+        if (qUnitEl) unitRaw = qUnitEl.textContent.trim().replace(/\s+/g,' ');
+      }
+      if (unitRaw) {
+        var uMatch = unitRaw.match(/^([\d][,.\d\s]*)\s*DH?/i);
+        unitEl.innerHTML = uMatch ? uMatch[1].trim() + ' Dh' : unitRaw;
+      } else if (price && qty) {
+        var pNum = parseFloat(price.replace(/\s/g,'').replace(',','.').replace(/[^\d.]/g,''));
+        var qNum = parseInt(String(qty).replace(/\s/g,''), 10);
+        if (!isNaN(pNum) && !isNaN(qNum) && qNum > 0) {
+          var computed = (pNum/qNum).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+          unitEl.innerHTML = computed + ' Dh';
+        } else { unitEl.innerHTML = ''; }
+      } else { unitEl.innerHTML = ''; }
+    }
+
+        /* Delivery */
+    var delivDate = '';
+    if (cfgFooter) {
+      var ddEl = cfgFooter.querySelector('[class*="deliv"],[class*="livr"],[class*="delivery"],[data-delivery]');
+      if (ddEl) delivDate = ddEl.textContent.trim();
+    }
+    if (!delivDate) delivDate = txt('.deliv-date,.delivery-date,[data-delivery]');
+    if (!delivDate) delivDate = first([[cfg,'deliveryDate'],[cfg,'delivery'],[cfg,'livraison']]);
+    if (delivDate) {
+      delivDate = delivDate.replace(/^livraison\s*estim[eé]e\s*:?\s*/i, '').trim();
+      if (delivEl) delivEl.style.display = '';
+      if (delivTxt) delivTxt.textContent  = 'Livraison estimée : ' + delivDate;
+    } else {
+      if (delivEl) delivEl.style.display = 'none';
+    }
+  }
+
+  /* Wire add-to-cart → proxy to real cfgFooter button */
+  if (addBtn) {
+    addBtn.addEventListener('click', function () {
+      var real = document.querySelector('#cfgFooter .btn-p,#cfgFooter .btn-add,#cfgFooter [class*="add"],#cfgFooter button');
+      if (real) real.click();
+    });
+  }
+
+  /* Observe all relevant containers */
+  ['cfgScroll','cfgFooter','cfgProductsPills','sidebar'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el && window.MutationObserver) {
+      new MutationObserver(refresh).observe(el, {
+        childList: true, subtree: true, characterData: true, attributes: true
+      });
+    }
+  });
+
+  setInterval(refresh, 400);
+  if (typeof APP !== 'undefined' && APP.whenReady) {
+    APP.whenReady(function () { setTimeout(refresh, 300); });
+  }
+})();
+</script>
+
+
+<script>
+/* ── Cart add animation ───────────────────────────────────────────────
+   Watches #cartBadge for count changes.
+   On change:
+     1. Badge pop keyframe
+     2. Summary CTA flashes green with checkmark for 1.6 s
+     3. Cart drawer auto-opens then closes after 2.6 s
+─────────────────────────────────────────────────────────────── */
+(function () {
+  var badge  = document.getElementById('cartBadge');
+  var addBtn = document.getElementById('csSummaryAddBtn');
+  if (!badge) return;
+
+  var _prevCount    = badge.textContent;
+  var _closeTimer   = null;
+  var _successTimer = null;
+
+  var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" width="17" height="17"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  function onItemAdded() {
+    /* 1. Badge pop */
+    badge.classList.remove('cs-badge-pop');
+    void badge.offsetWidth; /* force reflow */
+    badge.classList.add('cs-badge-pop');
+
+    /* 2. CTA button — green success flash with checkmark */
+    if (addBtn) {
+      clearTimeout(_successTimer);
+      var origHTML = addBtn.innerHTML;
+      addBtn.innerHTML = CHECK_SVG + ' Ajouté au panier';
+      addBtn.classList.add('cs-add-btn--success');
+      _successTimer = setTimeout(function () {
+        addBtn.innerHTML = origHTML;
+        addBtn.classList.remove('cs-add-btn--success');
+      }, 1120);
+    }
+
+    /* 3. Cart drawer: open, then auto-close */
+    if (typeof CART !== 'undefined') {
+      if (_closeTimer) clearTimeout(_closeTimer);
+      CART.open();
+      _closeTimer = setTimeout(function () {
+        CART.close();
+        _closeTimer = null;
+      }, 1820);
+    }
+  }
+
+  if (window.MutationObserver) {
+    new MutationObserver(function () {
+      var curr = badge.textContent;
+      if (curr !== _prevCount) { _prevCount = curr; onItemAdded(); }
+    }).observe(badge, { childList: true, characterData: true, subtree: true });
+  }
+})();
+</script>
+
+<script>
+/* ── Sticky header — JS force (CSS cascade unreliable on this page) ─────────────
+   Uses position:fixed via style.setProperty (beats any CSS rule).
+   Inserts a spacer so content doesn’t jump under the fixed bar.
+─────────────────────────────────────────────────────────────── */
+(function () {
+  function initStickyHeader() {
+    var hdr = document.querySelector('header.hdr');
+    if (!hdr) return;
+
+    /* Force fixed positioning via JS — immune to CSS cascade */
+    var p = hdr.style.setProperty.bind(hdr.style);
+    p('position', 'fixed',   'important');
+    p('top',      '0',       'important');
+    p('left',     '0',       'important');
+    p('right',    '0',       'important');
+    p('width',    '100%',    'important');
+    p('z-index',  '1000',    'important');
+
+    /* Spacer prevents content jumping under the fixed bar */
+    var spacer = document.getElementById('hdrSpacer');
+    if (!spacer) {
+      spacer = document.createElement('div');
+      spacer.id = 'hdrSpacer';
+      hdr.insertAdjacentElement('afterend', spacer);
+    }
+    function syncSpacer() {
+      spacer.style.height = hdr.offsetHeight + 'px';
+    }
+    syncSpacer();
+    window.addEventListener('resize', syncSpacer, { passive: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStickyHeader);
+  } else {
+    initStickyHeader();
+  }
+})();
+</script>
+<!-- ══ TRUST BAND ════════════════════════════════════════ -->
+<section class="trust-band"><div class="container"><div class="trust-band-grid">
+  <div class="trust-band-item reveal"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg><div><strong>+12 000 commandes</strong><span>livrées avec succès</span></div></div>
+  <div class="trust-band-item reveal" style="transition-delay:.1s;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><div><strong>98 % validés en 24h</strong><span>fichiers contrôlés rapidement</span></div></div>
+  <div class="trust-band-item reveal" style="transition-delay:.2s;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg><div><strong>Livraison Maroc entier</strong><span>partout sur le territoire</span></div></div>
+  <div class="trust-band-item reveal" style="transition-delay:.3s;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div><strong>Support prépresse</strong><span>experts réactifs</span></div></div>
+</div></div></section>
+
+<!-- ══ PRODUCTS ══════════════════════════════════════════ -->
+<section class="products" id="produits"><div class="container">
+  <div class="section-header reveal">
+    <div class="section-tag">Catalogue produits</div>
+    <h2 class="section-title">Tous vos supports imprimés</h2>
+    <p class="section-subtitle">Cartes, flyers, affiches, bannières — configurez et commandez vos impressions en toute simplicité.</p>
+  </div>
+  <div class="carousel-wrap products-carousel" id="productsCarousel">
+    <div class="carousel-viewport">
+      <div class="carousel-track">
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-cv/240/130" alt="Cartes de visite" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><h3>Cartes de visite</h3><p>Format 85×55 mm, recto-verso</p><div class="product-price">Dès 19 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-fly/240/130" alt="Flyers" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><h3>Flyers</h3><p>A6, A5, A4 — idéal pour vos événements</p><div class="product-price">Dès 29 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-dep/240/130" alt="Dépliants" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><h3>Dépliants</h3><p>Bifold, trifold, accordéon</p><div class="product-price">Dès 49 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-bro/240/130" alt="Brochures" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div><h3>Brochures</h3><p>Agrafage, dos carré collé</p><div class="product-price">Dès 79 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-aff/240/130" alt="Affiches" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="8" x2="21" y2="8"/></svg></div><h3>Affiches</h3><p>A3, A2, A1, A0 et sur mesure</p><div class="product-price">Dès 12 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-stk/240/130" alt="Stickers" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></div><h3>Stickers</h3><p>Découpe au baiser, vinyle</p><div class="product-price">Dès 24 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-menu/240/130" alt="Menus" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h12"/></svg></div><h3>Menus</h3><p>Plastifiés, effaçables, lignés</p><div class="product-price">Dès 35 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-roll/240/130" alt="Roll-up" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="1"/><line x1="12" y1="2" x2="12" y2="22"/></svg></div><h3>Roll-up</h3><p>85×200 cm, pied aluminium</p><div class="product-price">Dès 89 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-bache/240/130" alt="Bâches" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><h3>Bâches</h3><p>Intérieur / extérieur, œillets</p><div class="product-price">Dès 45 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+        <div><article class="product-card"><div class="product-card-photo"><img src="https://picsum.photos/seed/prod-cpost/240/130" alt="Cartes postales" loading="lazy"></div><div class="product-card-body"><div class="product-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 8h10M7 12h6"/></svg></div><h3>Cartes postales</h3><p>Format 10×15 et 15×21 cm</p><div class="product-price">Dès 22 Dh HT</div><button class="btn btn-outline" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'})">Configurer</button></div></article></div>
+      </div>
+    </div>
+    <button class="carousel-btn carousel-btn--prev" aria-label="Précédent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <button class="carousel-btn carousel-btn--next" aria-label="Suivant"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <div class="carousel-dots"></div>
+  </div>
+</div></section>
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════════ -->
+<section class="how" id="comment-ca-marche"><div class="container">
+  <div class="section-header reveal">
+    <div class="section-tag">Comment ça marche</div>
+    <h2 class="section-title">Commander en 4 étapes simples</h2>
+    <p class="section-subtitle" style="margin:0 auto;">De la configuration à la livraison, un process transparent et fluide.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="steps-connector" aria-hidden="true"></div>
+    <div class="step-card reveal"><div class="step-num">Étape 01</div><div class="step-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg></div><h3>Configurez</h3><p>Sélectionnez votre produit, format, papier, finitions et délai dans notre configurateur.</p></div>
+    <div class="step-card reveal" style="transition-delay:.1s;"><div class="step-num">Étape 02</div><div class="step-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><h3>Envoyez vos fichiers</h3><p>Déposez votre PDF ou fichier vectoriel. Notre équipe prépresse le contrôle gratuitement.</p></div>
+    <div class="step-card reveal" style="transition-delay:.2s;"><div class="step-num">Étape 03</div><div class="step-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><h3>Payez en sécurité</h3><p>CB, virement ou SEPA — toutes vos transactions sont chiffrées et conformes PCI-DSS.</p></div>
+    <div class="step-card reveal" style="transition-delay:.3s;"><div class="step-num">Étape 04</div><div class="step-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><h3>Recevez votre commande</h3><p>Livraison suivie partout au Maroc. Notifications à chaque étape de production.</p></div>
+  </div>
+</div></section>
+
+<!-- ══ GALLERY ═══════════════════════════════════════════ -->
+<section class="gallery" id="realisations"><div class="container">
+  <div class="section-header reveal">
+    <div class="section-tag">Réalisations</div>
+    <h2 class="section-title">Nos impressions en action</h2>
+    <p class="section-subtitle">Des centaines d'entreprises nous font confiance pour leurs supports de communication.</p>
+  </div>
+  <div class="gallery-grid">
+    <div class="gallery-item gi-1 reveal-scale"><img src="https://picsum.photos/seed/gal-press1/700/600" alt="Atelier impression" loading="lazy"><div class="gallery-item-label">Atelier impression numérique</div></div>
+    <div class="gallery-item gi-2 reveal" style="transition-delay:.1s;"><img src="https://picsum.photos/seed/gal-cards2/500/220" alt="Cartes premium" loading="lazy"><div class="gallery-item-label">Cartes de visite finition or</div></div>
+    <div class="gallery-item gi-3 reveal" style="transition-delay:.15s;"><img src="https://picsum.photos/seed/gal-flyer3/400/220" alt="Flyers" loading="lazy"><div class="gallery-item-label">Flyers événementiels</div></div>
+    <div class="gallery-item gi-4 reveal" style="transition-delay:.2s;"><img src="https://picsum.photos/seed/gal-broch4/500/220" alt="Brochures" loading="lazy"><div class="gallery-item-label">Brochures dos carré collé</div></div>
+    <div class="gallery-item gi-5 reveal" style="transition-delay:.25s;"><img src="https://picsum.photos/seed/gal-stk5/400/220" alt="Stickers" loading="lazy"><div class="gallery-item-label">Stickers vinyle découpés</div></div>
+    <div class="gallery-item gi-6 reveal" style="transition-delay:.3s;"><img src="https://picsum.photos/seed/gal-event6/700/280" alt="Affiches" loading="lazy"><div class="gallery-item-label">Affiches grand format</div></div>
+    <div class="gallery-item gi-7 reveal" style="transition-delay:.35s;"><img src="https://picsum.photos/seed/gal-roll7/500/280" alt="Roll-up" loading="lazy"><div class="gallery-item-label">Roll-up salon professionnel</div></div>
+    <div class="gallery-item gi-8 reveal" style="transition-delay:.4s;"><img src="https://picsum.photos/seed/gal-fin8/400/280" alt="Finitions" loading="lazy"><div class="gallery-item-label">Finitions pelliculage mat</div></div>
+  </div>
+</div></section>
+
+<!-- ══ SERVICES ══════════════════════════════════════════ -->
+<section class="services"><div class="container">
+  <div class="section-header reveal">
+    <div class="section-tag">Nos services</div>
+    <h2 class="section-title">Au-delà de l'impression</h2>
+    <p class="section-subtitle">Des services complémentaires pour couvrir l'ensemble de vos besoins de communication.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><h3>Contrôle prépresse</h3><p>Vérification gratuite de chaque fichier : résolution, fonds perdus, profil colorimétrique.</p></div>
+    <div class="service-card reveal" style="transition-delay:.07s;"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div><h3>Découpe et façonnage</h3><p>Découpe laser, rainure, perforage, pliage et agrafage pour un résultat impeccable.</p></div>
+    <div class="service-card reveal" style="transition-delay:.14s;"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>Finitions premium</h3><p>Pelliculage mat/brillant, vernis UV sélectif, dorure à chaud, coins arrondis.</p></div>
+    <div class="service-card reveal" style="transition-delay:.21s;"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><h3>Livraison multi-adresses</h3><p>Expédition vers plusieurs adresses depuis une seule commande. Idéal pour les réseaux.</p></div>
+    <div class="service-card reveal" style="transition-delay:.28s;"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><h3>Commandes récurrentes</h3><p>Planifiez vos réapprovisionnements et bénéficiez de tarifs dégressifs sur volume.</p></div>
+    <div class="service-card reveal" style="transition-delay:.35s;"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3>Devis sur mesure</h3><p>Pour vos projets spécifiques, obtenez un devis personnalisé sous 24h.</p></div>
+    <div class="service-card reveal" style="transition-delay:.42s;"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><h3>Assistance graphique</h3><p>Nos graphistes peuvent optimiser ou recréer vos fichiers pour l'impression.</p></div>
+    <div class="service-card reveal" style="transition-delay:.49s;"><div class="service-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></div><h3>Impression éco-responsable</h3><p>Papiers certifiés FSC &amp; PEFC, encres végétales, démarche de réduction carbone.</p></div>
+  </div>
+</div></section>
+
+<!-- ══ TRACKING ═══════════════════════════════════════════ -->
+<section class="tracking" id="suivi">
+  <div class="container">
+    <div class="tracking-inner">
+      <div class="tracking-left reveal-left">
+        <div class="section-tag" style="background:transparent;padding:0;border:none;margin-bottom:24px;">SUIVI EN TEMPS RÉEL</div>
+        <h2>Votre commande, à la loupe</h2>
+        <p>Entrez votre numéro de commande et suivez chaque étape de la production jusqu'à la livraison.</p>
+        
+        <div class="tracking-search-bar">
+          <input type="text" id="track-num" placeholder="Ex: KT-2025-84712" onkeydown="if(event.key==='Enter')trackOrder()">
+          <button id="trkBtn" onclick="trackOrder()" type="button">Suivre &rarr;</button>
+        </div>
+        <p style="font-size:13px;color:var(--text-secondary);margin-top:16px;">Numéro disponible dans votre email de confirmation</p>
+        
+        <div id="trkErr" style="display:none;margin-top:16px;padding:12px;background:rgba(239,68,68,0.1);color:#ef4444;border-radius:8px;font-size:13px;"><span id="trkErrMsg">Commande introuvable.</span></div>
+        <div id="trkSpin" style="display:none;align-items:center;padding:16px 0;color:var(--text-secondary);font-size:13px;gap:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>Recherche…</div>
+      </div>
+      <div class="tracking-right reveal-right">
+        <div class="tracking-result" id="tracking-result" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ QUALITY ════════════════════════════════════════════ -->
+<section class="quality"><div class="container">
+  <div class="quality-grid">
+    <div class="reveal-left">
+      <div class="section-tag">Qualité</div>
+      <h2 class="section-title">Notre engagement qualité</h2>
+      <p class="section-subtitle" style="margin-bottom:32px;">Chaque commande bénéficie de notre processus qualité rigoureux pour un résultat à la hauteur de vos exigences.</p>
+      <div class="quality-list">
+        <div class="quality-item"><div class="quality-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div><h4>Contrôle fichier gratuit</h4><p>Vérification prépresse incluse pour chaque commande sans supplément.</p></div></div>
+        <div class="quality-item"><div class="quality-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div><h4>Impression haute définition</h4><p>Technologies d'impression numérique et offset pour une qualité professionnelle irréprochable.</p></div></div>
+        <div class="quality-item"><div class="quality-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><h4>Respect des délais</h4><p>Nous nous engageons sur des délais précis. En cas de retard, nous vous en informons immédiatement.</p></div></div>
+        <div class="quality-item"><div class="quality-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div><h4>Paiement sécurisé</h4><p>Transactions chiffrées, conformes aux normes PCI-DSS. CB, virement, SEPA acceptés.</p></div></div>
+      </div>
+    </div>
+    <div class="reveal-right">
+      <div class="quality-visual"><img src="https://picsum.photos/seed/quality-main/700/500" alt="Atelier d'impression Kote" loading="lazy"><div class="quality-badge"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><div><strong>Production responsable</strong><span>Papiers certifiés PEFC &amp; FSC</span></div></div></div>
+      <div class="quality-photos-row">
+        <div class="quality-photo-mini reveal-scale" style="transition-delay:.1s;"><img src="https://picsum.photos/seed/q-photo1/300/225" alt="Détail impression" loading="lazy"></div>
+        <div class="quality-photo-mini reveal-scale" style="transition-delay:.2s;"><img src="https://picsum.photos/seed/q-photo2/300/225" alt="Finitions pelliculage" loading="lazy"></div>
+        <div class="quality-photo-mini reveal-scale" style="transition-delay:.3s;"><img src="https://picsum.photos/seed/q-photo3/300/225" alt="Contrôle qualité" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ══ TESTIMONIALS ═══════════════════════════════════════ -->
+<section class="testimonials"><div class="container">
+  <div class="section-header reveal">
+    <div class="section-tag">Avis clients</div>
+    <h2 class="section-title">Ils font confiance à Kote</h2>
+    <p class="section-subtitle" style="margin:0 auto;">Des milliers d'entreprises utilisent Kote pour leurs impressions professionnelles au quotidien.</p>
+  </div>
+  <div class="carousel-wrap testimonials-carousel" id="testimonialsCarousel">
+    <div class="carousel-viewport">
+      <div class="carousel-track">
+        <div><article class="testimonial-card"><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div><blockquote>Kote nous a permis de commander tous nos supports événementiels en moins de dix minutes. La plateforme est intuitive et les délais sont parfaitement respectés.</blockquote><div class="testimonial-author"><img src="https://i.pravatar.cc/150?img=47" alt="Sophie Marchand" class="author-avatar"><div><div class="author-name">Sophie Marchand</div><div class="author-role">Directrice marketing — Événements Lumière</div></div></div></article></div>
+        <div><article class="testimonial-card"><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div><blockquote>Le configurateur est clair, les prix sont transparents et la qualité d'impression est au rendez-vous. J'ai passé commande plusieurs fois et je ne suis jamais déçu.</blockquote><div class="testimonial-author"><img src="https://i.pravatar.cc/150?img=11" alt="Thomas Lefèvre" class="author-avatar"><div><div class="author-name">Thomas Lefèvre</div><div class="author-role">Gérant — Studio Forma Architectes</div></div></div></article></div>
+        <div><article class="testimonial-card"><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div><blockquote>Le suivi de commande est très pratique pour nos campagnes multi-sites. En un coup d'œil, on sait exactement où en est chaque livraison. Outil indispensable.</blockquote><div class="testimonial-author"><img src="https://i.pravatar.cc/150?img=32" alt="Marie-Claire Dupont" class="author-avatar"><div><div class="author-name">Marie-Claire Dupont</div><div class="author-role">Responsable communication — Réseau Galerie Prisme</div></div></div></article></div>
+        <div><article class="testimonial-card"><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div><blockquote>Un service irréprochable du début à la fin. La qualité d'impression est exceptionnelle, et le contrôle prépresse gratuit nous évite beaucoup d'erreurs coûteuses.</blockquote><div class="testimonial-author"><img src="https://i.pravatar.cc/150?img=53" alt="Youssef Amrani" class="author-avatar"><div><div class="author-name">Youssef Amrani</div><div class="author-role">Directeur créatif — Agence Noor Design</div></div></div></article></div>
+        <div><article class="testimonial-card"><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div><blockquote>Nous commandons régulièrement des brochures et roll-ups. Les finitions sont toujours impeccables et la livraison arrive toujours dans les temps. Excellent rapport qualité-prix.</blockquote><div class="testimonial-author"><img src="https://i.pravatar.cc/150?img=26" alt="Nadia Benkirane" class="author-avatar"><div><div class="author-name">Nadia Benkirane</div><div class="author-role">Chargée de com — Groupe Horizon Santé</div></div></div></article></div>
+        <div><article class="testimonial-card"><div class="stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div><blockquote>La possibilité de suivre ma commande en temps réel est un vrai plus. Je recommande Kote à tous les professionnels qui cherchent un imprimeur fiable et rapide au Maroc.</blockquote><div class="testimonial-author"><img src="https://i.pravatar.cc/150?img=68" alt="Karim Tazi" class="author-avatar"><div><div class="author-name">Karim Tazi</div><div class="author-role">Fondateur — K Studio Architecture</div></div></div></article></div>
+      </div>
+    </div>
+    <button class="carousel-btn carousel-btn--prev" aria-label="Précédent"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <button class="carousel-btn carousel-btn--next" aria-label="Suivant"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <div class="carousel-dots"></div>
+  </div>
+</div></section>
+
+<!-- ══ FAQ ════════════════════════════════════════════════ -->
+<section class="faq" id="faq"><div class="container">
+  <div class="section-header reveal">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-title">Questions fréquentes</h2>
+    <p class="section-subtitle">Retrouvez les réponses aux interrogations les plus fréquentes de nos clients.</p>
+  </div>
+  <div class="faq-list reveal">
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false" type="button">
+        Quels formats de fichiers acceptez-vous ?
+        <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </button>
+      <div class="faq-answer"><p>Nous acceptons les formats PDF, AI, EPS, TIFF et PSD. Le fichier doit être en CMJN, avec une résolution minimum de 300 dpi et des fonds perdus de 3 mm.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false" type="button">
+        Quels sont les délais de production ?
+        <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </button>
+      <div class="faq-answer"><p>Le délai standard est de 5 à 7 jours ouvrés après validation du fichier. En option express, la production est réalisée en 2 à 3 jours ouvrés.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false" type="button">
+        Puis-je annuler ou modifier ma commande ?
+        <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </button>
+      <div class="faq-answer"><p>Toute modification ou annulation est possible dans les 2 heures suivant la commande, avant le lancement du contrôle prépresse. Contactez rapidement notre support si besoin.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false" type="button">
+        Comment suivre ma commande ?
+        <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </button>
+      <div class="faq-answer"><p>Vous pouvez suivre votre commande à tout moment depuis notre section de suivi. Vous recevez aussi des notifications automatiques par e-mail et SMS à chaque étape clé.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false" type="button">
+        Proposez-vous des finitions premium ?
+        <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </button>
+      <div class="faq-answer"><p>Oui : pelliculage mat ou brillant, vernis UV sélectif, dorure à chaud, coins arrondis, gaufrage et reliure. Ces options sont disponibles directement dans le configurateur.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)" aria-expanded="false" type="button">
+        Livrez-vous partout au Maroc ?
+        <div class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      </button>
+      <div class="faq-answer"><p>Oui, nous livrons sur l'ensemble du territoire marocain. Les frais et délais de livraison sont calculés automatiquement en fonction de votre adresse lors de la commande.</p></div>
+    </div>
+  </div>
+  <div class="faq-cta reveal">
+    <p style="font-size:15px;color:var(--text-secondary);margin-bottom:16px;">Vous ne trouvez pas votre réponse ?</p>
+    <a href="mailto:contact@kote.ma" class="btn btn-outline" style="display:inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contacter le support</a>
+  </div>
+</div></section>
+
+<!-- ══ CTA FINAL ══════════════════════════════════════════ -->
+<section class="cta-final">
+  <div class="cta-parallax-bg" id="ctaBg" aria-hidden="true"></div>
+  <div class="container"><div class="cta-final-inner reveal">
+    <h2>Prêt à lancer votre prochaine impression ?</h2>
+    <p>Configurez votre produit, obtenez votre prix instantané et commandez en toute confiance avec Kote.</p>
+    <div class="cta-final-btns">
+      <a href="#vCfg" class="btn btn-white" onclick="document.getElementById('vCfg').scrollIntoView({behavior:'smooth'});return false;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>Commencer maintenant</a>
+      <a href="mailto:contact@kote.ma" class="btn btn-ghost"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Demander un devis</a>
+    </div>
+  </div></div>
+</section>
+
+<!-- ══ FOOTER ═════════════════════════════════════════════ -->
+<footer><div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <svg width="130" height="30" viewBox="0 0 395 116" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#2463EB" d="M115,0v24.1c0,7.9-6.4,14.2-14.2,14.2H76.7V0H115z M38.3,0H0v115h38.3V76.7h24.6c7.6,0,13.8-6.2,13.8-13.8V38.3H38.3V0z"/>
+          <path fill="rgba(255,255,255,0.8)" d="M100.1,114.5H76.5v-38h38v23.6C114.5,108.1,108.1,114.5,100.1,114.5z M175.2,116.2c9.2,0,17.5-1.9,24.9-5.8c7.4-3.8,13.1-9.4,17.4-16.6c4.2-7.2,6.3-15.6,6.3-25.1c0-9.6-2.1-17.9-6.3-25c-4.2-7.1-10-12.6-17.3-16.5c-7.3-3.8-15.6-5.8-24.8-5.8c-9.2,0-17.5,1.9-24.8,5.8c-7.3,3.8-13.1,9.3-17.3,16.5c-4.2,7.1-6.3,15.5-6.3,25c0,9.7,2.1,18.1,6.3,25.2c4.2,7.1,9.9,12.6,17.2,16.5C157.7,114.3,165.9,116.2,175.2,116.2z M175.2,88.2c-4.5,0-8.2-1.6-11-4.9c-2.9-3.3-4.3-8.1-4.3-14.5c0-6.3,1.5-11,4.4-14.3s6.6-4.9,11-4.9c4.4,0,8.1,1.6,11.1,4.9c3,3.3,4.5,8.1,4.5,14.3c0,6.3-1.5,11.1-4.5,14.4C183.4,86.5,179.7,88.2,175.2,88.2z M282.1,87.5c-2.7,0-4.7-0.5-5.8-1.6c-1.2-1.1-1.7-2.9-1.7-5.4v-31h16.8V22.6h-16.8V0.2H242v22.4h-11.4v26.8H242v30.5c0,23.4,11.8,35.1,35.4,35.1h14V87.5H282.1z M394.5,67.8c0-9.4-2-17.6-5.9-24.6c-4-7-9.4-12.3-16.5-16.1c-7-3.7-15.1-5.6-24.2-5.6c-9.2,0-17.4,1.9-24.5,5.8c-7.1,3.8-12.6,9.3-16.6,16.4c-4,7.1-5.9,15.5-5.9,25.1c0,9.7,2,18.1,6,25.2c4,7.1,9.6,12.6,16.6,16.5c7.1,3.8,15.2,5.8,24.3,5.8c7.6,0,14.5-1.4,20.8-4.3c6.3-2.9,11.4-6.8,15.6-11.8c4.1-5,6.9-10.7,8.3-17h-34.4c-2.3,4.8-6.2,7.2-11.5,7.2c-3.8,0-7-1.2-9.5-3.7c-2.5-2.5-3.9-6.2-4.2-11.3h61.1C394.4,72.8,394.5,70.3,394.5,67.8z M333.1,59.7c0.8-4.2,2.4-7.3,4.9-9.5c2.5-2.1,5.8-3.2,9.7-3.2c4,0,7.2,1.1,9.9,3.4c2.6,2.3,4,5.4,4,9.3H333.1z"/>
+        </svg>
+      </div>
+      <p>Service Web-to-Print professionnel. Configurez, commandez et suivez vos impressions depuis une interface simple et performante.</p>
+      <div class="social-links">
+        <a href="#" class="social-link" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
+        <a href="#" class="social-link" aria-label="Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        <a href="#" class="social-link" aria-label="X"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col"><h4>Produits</h4><ul><li><a href="#produits">Cartes de visite</a></li><li><a href="#produits">Flyers &amp; Affiches</a></li><li><a href="#produits">Brochures</a></li><li><a href="#produits">Roll-up &amp; Bâches</a></li><li><a href="#produits">Stickers</a></li></ul></div>
+    <div class="footer-col"><h4>Navigation</h4><ul><li><a href="#vCfg">Configurateur</a></li><li><a href="#suivi">Suivi commande</a></li><li><a href="#realisations">Nos réalisations</a></li><li><a href="#faq">Aide &amp; FAQ</a></li><li><a href="#">CGV</a></li><li><a href="#">Confidentialité</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><div class="footer-contact"><div class="contact-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:contact@kote.ma">contact@kote.ma</a></div><div class="contact-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Lun–Ven, 9h–18h</span></div><div class="contact-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 12.72a19.79 19.79 0 01-3.07-8.67A2 2 0 012 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg><a href="tel:+212600000000">06 00 00 00 00</a></div></div></div>
+  </div>
+  <div class="footer-bottom"><p>© 2026 Kote — Service Web-to-Print professionnel. Tous droits réservés.</p><div style="display:flex;gap:20px;"><a href="#">Mentions légales</a><a href="#">CGV</a><a href="#">Cookies</a></div></div>
+</div></footer>
+
+<!-- ══ TOAST ══════════════════════════════════════════════ -->
+<div class="toast" id="lp-cart-toast" role="alert" aria-live="polite">
+  <div class="toast-header"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><strong>Produit ajouté au panier</strong><button class="toast-close" onclick="closeLpToast()" aria-label="Fermer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="toast-product" id="lp-toast-desc">—</div>
+  <div class="toast-price" id="lp-toast-price">—</div>
+  <div class="toast-btns"><button class="btn btn-primary" onclick="closeLpToast()">Voir le panier</button><button class="btn btn-secondary" onclick="closeLpToast()" type="button">Continuer</button></div>
+</div>
+
+<script src="js/kote-tracking.js"></script>
+<script>
+/* ── Landing page sections JS ─────────────────────────── */
+
+/* Scroll-reveal via IntersectionObserver */
+(function () {
+  var revealEls = document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale');
+  if (!window.IntersectionObserver) {
+    revealEls.forEach(function (el) { el.classList.add('visible'); });
+    return;
+  }
+  var ro = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+  revealEls.forEach(function (el) { ro.observe(el); });
+})();
+
+/* Parallax on scroll */
+function applyParallax(id, section, speed) {
+  var bg = document.getElementById(id);
+  if (!bg || !section) return;
+  var rect = section.getBoundingClientRect();
+  bg.style.transform = 'translateY(' + (-rect.top * speed) + 'px)';
+}
+/* INTEGRATED: heroSection added to drive #heroBg parallax */
+var heroSection  = document.querySelector('.hero');
+var trackSection = document.querySelector('.tracking');
+var ctaSection   = document.querySelector('.cta-final');
+window.addEventListener('scroll', function () {
+  applyParallax('heroBg',  heroSection,  0.3);
+  applyParallax('trackBg', trackSection, 0.2);
+  applyParallax('ctaBg',   ctaSection,   0.25);
+}, { passive: true });
+
+/* FAQ accordion */
+function toggleFaq(btn) {
+  var item   = btn.closest('.faq-item');
+  var answer = item.querySelector('.faq-answer');
+  var isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(function (i) {
+    i.classList.remove('open');
+    i.querySelector('.faq-answer').classList.remove('open');
+    i.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+  });
+  if (!isOpen) {
+    item.classList.add('open');
+    answer.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+}
+
+/* Order tracking via real API integrated in light theme */
+function resetTrackingLp() {
+  document.getElementById('track-num').value = '';
+  document.getElementById('tracking-result').style.display = 'none'; 
+  document.getElementById('tracking-result').innerHTML = '';
+  document.getElementById('trkErr').style.display = 'none';
+  document.getElementById('track-num').focus();
+}
+
+function renderLightTracking(ord) {
+  var st = ord.status || 'nouveau';
+  var isCancelled = st === 'annule';
+  
+  var steps = [
+    { id: 'nouveau', label: 'Commande validée', sub: 'Information enregistrée' },
+    { id: 'en_cours', label: 'Fichiers vérifiés', sub: 'Contrôle prépresse' },
+    { id: 'en_impression', label: 'En cours d\'impression', sub: 'Production en cours' },
+    { id: 'finition', label: 'En finition & façonnage', sub: 'Préparation' },
+    { id: 'pret', label: 'Expédiée — Livraison J+1', sub: 'Prise en charge' }
+  ];
+  
+  var currentIdx = 0;
+  if (st === 'en_cours' || st === 'conception') currentIdx = 1;
+  else if (st === 'en_impression') currentIdx = 2;
+  else if (st === 'finition') currentIdx = 3;
+  else if (st === 'pret' || st === 'livre') currentIdx = 4;
+  
+  if (isCancelled) {
+    return '<div class="track-message" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.25);color:#ef4444;">Cette commande a été annulée.</div>';
+  }
+  
+  var html = '<div class="track-steps">';
+  for (var i = 0; i < steps.length; i++) {
+    var cls = '';
+    var icon = '';
+    if (i < currentIdx || (i === currentIdx && st === 'livre')) {
+      cls = 'done';
+      icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else if (i === currentIdx) {
+      cls = 'active';
+      icon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><circle cx="12" cy="12" r="10"/></svg>';
+    } else {
+      if (i === 3) {
+        icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 12l10 10 10-10L12 2z"/></svg>';
+      } else if (i === 4) {
+        icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+      } else {
+        icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
+      }
+    }
+    
+    html += '<div class="track-step '+cls+'">' +
+            '  <div class="track-step-dot">'+icon+'</div>' +
+            '  <div class="track-step-text"><strong>'+steps[i].label+'</strong><span>'+steps[i].sub+'</span></div>' +
+            '</div>';
+  }
+  html += '</div>';
+  
+  return html;
+}
+
+async function trackOrder() {
+  var ref = document.getElementById('track-num').value.trim().toUpperCase();
+  if (!ref) { document.getElementById('track-num').focus(); return; }
+  
+  var btn = document.getElementById('trkBtn');
+  var spin = document.getElementById('trkSpin');
+  var err = document.getElementById('trkErr');
+  var res = document.getElementById('tracking-result');
+  
+  err.style.display = 'none';
+  res.style.display = 'none';
+  res.innerHTML = '';
+  btn.disabled = true;
+  spin.style.display = 'flex';
+  
+  try {
+    var ord = await TRK.lookup(ref);
+    if (!ord) {
+      document.getElementById('trkErrMsg').innerHTML = 'Référence <b>' + ref + '</b> introuvable.';
+      err.style.display = 'block';
+    } else {
+      res.innerHTML = renderLightTracking(ord);
+      res.style.display = 'block';
+    }
+  } catch(e) {
+    console.error('[TRK]', e);
+    document.getElementById('trkErrMsg').textContent = 'Erreur : ' + e.message;
+    err.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    spin.style.display = 'none';
+  }
+}
+
+/* Carousels Auto-Slide */
+(function() {
+  function initCarousel(id, delay) {
+    var wrap = document.getElementById(id);
+    if (!wrap) return;
+    var track = wrap.querySelector('.carousel-track');
+    var items = track.children;
+    var prev = wrap.querySelector('.carousel-btn--prev');
+    var next = wrap.querySelector('.carousel-btn--next');
+    var dotsContainer = wrap.querySelector('.carousel-dots');
+    if (!track || items.length === 0) return;
+    
+    var currentIndex = 0;
+    var interval;
+    
+    // Calculate how many items are visible at once based on CSS
+    function getItemsPerView() {
+      var itemWidth = items[0].getBoundingClientRect().width;
+      var trackWidth = track.getBoundingClientRect().width;
+      return Math.round(trackWidth / itemWidth) || 1;
+    }
+    
+    // Create dots
+    function renderDots() {
+      if(!dotsContainer) return;
+      dotsContainer.innerHTML = '';
+      var numDots = Math.ceil(items.length / getItemsPerView());
+      // Adjust if we don't have exactly divisible items
+      var totalSlides = items.length - getItemsPerView() + 1;
+      if (totalSlides <= 1) return; // No need for dots
+      
+      for (var i = 0; i < totalSlides; i++) {
+        var dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (i === currentIndex ? ' active' : '');
+        dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+        dot.addEventListener('click', (function(index) {
+          return function() { goToSlide(index); resetInterval(); };
+        })(i));
+        dotsContainer.appendChild(dot);
+      }
+    }
+    
+    function updateDots() {
+      if(!dotsContainer) return;
+      var dots = dotsContainer.children;
+      for (var i = 0; i < dots.length; i++) {
+        dots[i].className = 'carousel-dot' + (i === currentIndex ? ' active' : '');
+      }
+    }
+    
+    function goToSlide(index) {
+      var maxIndex = items.length - getItemsPerView();
+      if (maxIndex < 0) maxIndex = 0;
+      if (index < 0) index = maxIndex;
+      if (index > maxIndex) index = 0;
+      currentIndex = index;
+      
+      var itemWidth = items[0].getBoundingClientRect().width;
+      track.style.transform = 'translateX(-' + (currentIndex * itemWidth) + 'px)';
+      updateDots();
+    }
+    
+    function nextSlide() { goToSlide(currentIndex + 1); }
+    function prevSlide() { goToSlide(currentIndex - 1); }
+    
+    if (prev) prev.addEventListener('click', function() { prevSlide(); resetInterval(); });
+    if (next) next.addEventListener('click', function() { nextSlide(); resetInterval(); });
+    
+    function startInterval() {
+      if (delay) interval = setInterval(nextSlide, delay);
+    }
+    function resetInterval() {
+      clearInterval(interval);
+      startInterval();
+    }
+    
+    // Init layout
+    setTimeout(function() {
+      renderDots();
+      goToSlide(0);
+      startInterval();
+    }, 100); // small timeout to ensure layout is done
+    
+    // Pause on hover
+    wrap.addEventListener('mouseenter', function() { clearInterval(interval); });
+    wrap.addEventListener('mouseleave', startInterval);
+    
+    // Handle resize
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        renderDots();
+        goToSlide(currentIndex);
+      }, 200);
+    });
+  }
+  
+  initCarousel('productsCarousel', 3000);
+  initCarousel('testimonialsCarousel', 4000);
+})();
+
+/* Toast helper */
+function closeLpToast() { document.getElementById('lp-cart-toast').classList.remove('show'); }
+
+/* ── FIX 1: Ghost detail bloc when no valid price ───────────────────────────
+   Watches #csSummaryAmount for text changes. When the value is "—" or blank
+   (no product selected / options not yet configured), adds .cs-detail-pending
+   to #csSummaryContent so it dims out. Clears the class the moment a real
+   price is calculated and rendered by the app's JS.
+   Also watches #csSummaryContent's own style attribute so the ghost class is
+   applied immediately when the panel first slides into view (before any price
+   has been rendered into the amount node).
+─────────────────────────────────────────────────────────────────────────── */
+(function () {
+  var amountEl  = document.getElementById('csSummaryAmount');
+  var contentEl = document.getElementById('csSummaryContent');
+  if (!amountEl || !contentEl) return;
+
+  function syncGhost() {
+    var val = amountEl.textContent.trim();
+    var pending = !val || val === '—';
+    contentEl.classList.toggle('cs-detail-pending', pending);
+  }
+
+  /* Watch price text updates */
+  new MutationObserver(syncGhost).observe(amountEl, {
+    childList: true, characterData: true, subtree: true
+  });
+
+  /* Watch when content panel itself becomes visible (style="display:block") */
+  new MutationObserver(function (muts) {
+    muts.forEach(function (m) {
+      if (m.type === 'attributes' && contentEl.style.display !== 'none') syncGhost();
+    });
+  }).observe(contentEl, { attributes: true, attributeFilter: ['style'] });
+
+  syncGhost(); /* initial state */
+}());
+</script>
+
+<style>
+/* Scroll + sticky: handled in style.css @layer client */
+/* ── Summary panel — natural vertical rhythm ── */
+.cs-hdr{margin-bottom:12px!important;padding-bottom:10px!important;}
+.cs-row{padding:6px 0!important;}
+.cs-price-block{margin:12px 0!important;padding:14px!important;}
+.cs-badges{margin-bottom:8px!important;}
+.cs-add-btn{padding:13px!important;}
+/* Category group header icon (set by menu builder via DB.sidebar_groups[].icon) */
+.sb-grp-ic{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:15px;height:15px;opacity:.82;margin-right:5px;vertical-align:middle;}
+.sb-grp-ic svg{width:15px;height:15px;display:block;}
+.sb-grp-ic--glyph{font-size:13px;line-height:1;}
+/* Summary panel price block */
+.cs-price-label{font-size:12px;color:#667085;font-weight:400;margin-bottom:4px;}
+.cs-price-unit{font-size:12px;color:#667085;font-weight:400;margin-top:6px;letter-spacing:.01em;}
+.cs-price-unit b{font-weight:700;color:#101828;}
+/* Quantity row — highlighted */
+.cs-row.cs-row-qty{background:#EEF2FF;border-radius:10px;padding:10px 12px!important;margin:8px 0;border-top:none!important;}
+.cs-row-qty+.cs-row{border-top:none;}
+.cs-qty-val{font-size:15px!important;font-weight:800!important;color:#2F63F5!important;}
+/* Cart badge pop */
+@keyframes cs-badge-pop{0%,100%{transform:scale(1)}35%{transform:scale(1.75);background:#059669}65%{transform:scale(.88)}}
+.cs-badge-pop{animation:cs-badge-pop .5s cubic-bezier(.36,.07,.19,.97) both;}
+/* CTA success flash */
+@keyframes cs-btn-success{0%,65%{background:#059669;box-shadow:0 8px 28px rgba(5,150,105,.38);}100%{background:#2F63F5;box-shadow:0 8px 28px rgba(47,99,245,.28);}}
+.cs-add-btn--success{animation:cs-btn-success 1.6s ease forwards!important;}
+
+/* ── FIX 1: Ghost detail/price bloc when no product selected ────────────────
+   .cs-detail-pending is toggled by the MutationObserver below.
+   Applied to #csSummaryContent so the entire detail area (rows, price,
+   add-to-cart) dims out when amount shows "—" (no valid selection yet).
+   Transitions ensure a smooth fade-in once a real price is calculated.
+─────────────────────────────────────────────────────────────────────────── */
+#csSummaryContent {
+  transition: opacity .25s ease, filter .25s ease;
+}
+#csSummaryContent.cs-detail-pending {
+  opacity: .28;
+  filter: blur(1.8px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── FIX 2: Cart drawer above header ────────────────────────────────────────
+   The header runs position:fixed at z-index ~100 (style.css).
+   z-index:1000 puts the drawer and its overlay firmly above every fixed layer.
+─────────────────────────────────────────────────────────────────────────── */
+.cart-drawer  { z-index: 1001 !important; }
+.cart-overlay { z-index: 1000 !important; }
+</style>
+
+<script>
+/* ── Horizontal Scroll Arrows ──────────────────────────────
+   Automatically adds left/right scroll buttons to overflowing strips.
+────────────────────────────────────────────────────────────── */
+(function() {
+  function applyScrollArrows(containerId) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    
+    // Prevent double wrapping
+    if (container.parentNode.classList.contains('x-scroll-wrapper')) return;
+    
+    // Create wrapper
+    var wrapper = document.createElement('div');
+    wrapper.className = 'x-scroll-wrapper';
+    container.parentNode.insertBefore(wrapper, container);
+    wrapper.appendChild(container);
+    
+    // Create buttons
+    var btnLeft = document.createElement('button');
+    btnLeft.className = 'x-scroll-btn left';
+    btnLeft.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>';
+    
+    var btnRight = document.createElement('button');
+    btnRight.className = 'x-scroll-btn right';
+    btnRight.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>';
+    
+    wrapper.insertBefore(btnLeft, container);
+    wrapper.appendChild(btnRight);
+    
+    function updateArrows() {
+      if (!container) return;
+      var maxScroll = container.scrollWidth - container.clientWidth;
+      
+      btnLeft.style.opacity = container.scrollLeft > 5 ? '1' : '0';
+      btnLeft.style.pointerEvents = container.scrollLeft > 5 ? 'auto' : 'none';
+      
+      btnRight.style.opacity = (container.scrollLeft < maxScroll - 5 && maxScroll > 0) ? '1' : '0';
+      btnRight.style.pointerEvents = (container.scrollLeft < maxScroll - 5 && maxScroll > 0) ? 'auto' : 'none';
+    }
+    
+    btnLeft.onclick = function() { container.scrollBy({ left: -200, behavior: 'smooth' }); };
+    btnRight.onclick = function() { container.scrollBy({ left: 200, behavior: 'smooth' }); };
+    
+    container.addEventListener('scroll', updateArrows);
+    window.addEventListener('resize', updateArrows);
+    
+    if (window.MutationObserver) {
+      new MutationObserver(updateArrows).observe(container, { childList: true, subtree: true, characterData: true });
+    }
+    
+    setTimeout(updateArrows, 150);
+    setTimeout(updateArrows, 600);
+  }
+
+  function init() {
+    applyScrollArrows('sidebar');
+    applyScrollArrows('cfgProductsPills');
+
+    /* Sticky Footer Ghosting */
+    var cfgBloc = document.querySelector('.main-views');
+    var stickyBar = document.getElementById('cfgSummary');
+    if (cfgBloc && stickyBar && window.IntersectionObserver) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            stickyBar.classList.remove('stripe-ghosted');
+          } else {
+            stickyBar.classList.add('stripe-ghosted');
+          }
+        });
+      }, { threshold: 0.05 });
+      observer.observe(cfgBloc);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+</body>
+</html>

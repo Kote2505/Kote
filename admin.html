@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kote · Admin</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563EB">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kote">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+/* ══ PROVIDER DASHBOARD — scoped to provider.html ════════════ */
+
+/* Main view container */
+#vDash {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+  padding: 1.25rem 1.4rem; gap: 0; background: var(--bg);
+}
+@media(max-width:640px){
+  #vDash { padding: .75rem .75rem 1rem; }
+  .dash-kpi { gap: .4rem; }
+  .kpi-period-row { gap: .3rem; }
+  .kpi-period-pills { flex-wrap: wrap; gap: 3px; }
+  .kpi-period-lbl { display: none; }
+  .dash-result-info { font-size: .58rem; }
+  .dash-ord-hdr { padding: .5rem .65rem; }
+  .dash-body-footer { flex-direction: column; gap: .4rem; }
+  .dash-action-btns { flex-wrap: wrap; }
+}
+
+/* Loading / error state */
+.dash-loading {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: .5rem;
+  font-size: .72rem; color: var(--t3); padding: 3rem 1rem;
+}
+
+/* Stats / KPI panel */
+.dash-stats { display: none; }
+
+/* ── KPI panel ── */
+.dash-kpi { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+
+/* Period selector */
+.kpi-period-row {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+}
+.kpi-period-pills { display: flex; gap: 3px; }
+.kpi-pp {
+  padding: 2px 9px; border-radius: var(--r); border: 1.5px solid var(--bd);
+  background: var(--sf); font-family: inherit; font-size: .62rem; font-weight: 600;
+  color: var(--t3); cursor: pointer; transition: all var(--ease); white-space: nowrap;
+  line-height: 1.4;
+}
+.kpi-pp:hover { border-color: var(--bl); color: var(--bl); }
+.kpi-pp.on { background: var(--bl); color: #fff; border-color: var(--bl); }
+.kpi-range-row {
+  display: flex; align-items: center; gap: 5px;
+}
+.kpi-date-inp {
+  padding: 3px 7px; border: 1.5px solid var(--bd); border-radius: 6px;
+  font-family: inherit; font-size: .63rem; color: var(--t1); background: var(--sf);
+  cursor: pointer; transition: border-color var(--ease);
+}
+.kpi-date-inp:focus { border-color: var(--bl); outline: none; }
+.kpi-range-sep { font-size: .7rem; color: var(--t3); }
+.kpi-period-lbl {
+  margin-left: auto; font-size: .6rem; color: var(--t3); font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Metric cards */
+.kpi-cards {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem;
+}
+@media(max-width:760px){
+  .kpi-cards { grid-template-columns: repeat(2, 1fr); }
+  .kpi-pipeline { overflow-x: auto; }
+  .kpi-pipe-tiles { min-width: 420px; }
+}
+@media(max-width:440px){
+  .kpi-cards { grid-template-columns: 1fr 1fr; gap: .35rem; }
+  .kpi-card  { padding: .6rem .65rem; }
+  .kpi-card-val { font-size: .95rem; }
+}
+.kpi-card {
+  background: var(--sf); border: 1.5px solid var(--bd); border-radius: 10px;
+  padding: .75rem .85rem; display: flex; align-items: flex-start; gap: .6rem;
+  transition: box-shadow var(--ease), border-color var(--ease);
+}
+.kpi-card:hover { border-color: var(--bl-md); box-shadow: 0 2px 10px rgba(37,99,235,.07); }
+.kpi-card-ico {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.kpi-card-body { flex: 1; min-width: 0; }
+.kpi-card-val {
+  font-size: 1.15rem; font-weight: 800; color: var(--t1); letter-spacing: -.04em;
+  line-height: 1.1; font-variant-numeric: tabular-nums;
+  display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap;
+}
+.kpi-unit { font-size: .62rem; font-weight: 600; color: var(--t3); letter-spacing: 0; }
+.kpi-trend {
+  font-size: .59rem; font-weight: 700; padding: 1px 6px; border-radius: 20px;
+  display: inline-flex; align-items: center; gap: 2px;
+}
+.kpi-trend.up { background: #ecfdf5; color: #059669; }
+.kpi-trend.dn { background: #fef2f2; color: #dc2626; }
+.kpi-card-lbl { font-size: .63rem; font-weight: 700; color: var(--t2); margin-top: 3px; }
+.kpi-card-sub { font-size: .57rem; color: var(--t3); margin-top: 1px; }
+
+/* Pipeline tiles */
+.kpi-pipeline {
+  background: var(--sf); border: 1.5px solid var(--bd); border-radius: 10px;
+  padding: .65rem .9rem .6rem;
+}
+.kpi-pipe-tiles {
+  display: flex; align-items: stretch; gap: 0;
+}
+.kpi-tile {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: .55rem .3rem .5rem; background: none; border: none; border-right: 1px solid var(--bd);
+  cursor: pointer; transition: background var(--ease); font-family: inherit;
+  border-radius: 0; overflow: hidden; position: relative;
+}
+.kpi-tile:first-child { border-radius: 6px 0 0 6px; }
+.kpi-tile:last-child  { border-right: none; border-radius: 0 6px 6px 0; }
+.kpi-tile:hover { background: var(--s2); }
+/* Horizontal color bar — replaces the dot, sits at top of tile */
+.kpi-tile-dot {
+  width: 28px; height: 3px; border-radius: 2px; flex-shrink: 0; margin-bottom: 3px;
+}
+.kpi-tile-num {
+  font-size: 1.3rem; font-weight: 900; letter-spacing: -.05em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-tile-lbl {
+  font-size: .68rem; color: var(--t2); font-weight: 600;
+  text-align: center; line-height: 1.2; letter-spacing: 0;
+}
+
+/* Pipeline proportional bar */
+.kpi-bar {
+  display: flex; border-radius: 5px; overflow: hidden; height: 8px; background: var(--bd);
+}
+.kpi-bar-seg {
+  height: 100%; cursor: pointer; transition: filter .14s; flex-shrink: 0;
+}
+.kpi-bar-seg:hover { filter: brightness(.85); }
+
+/* ── Tabs + search row ── */
+.dash-header-row {
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1.5px solid var(--bd); margin-bottom: .7rem; gap: .5rem;
+  flex-wrap: wrap;
+}
+@media(max-width:560px){
+  .dash-search-wrap { width: 100%; }
+  .dash-tab-actions { width: 100%; justify-content: space-between; padding-bottom: .5rem; }
+  .dash-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .dash-tabs::-webkit-scrollbar { display: none; }
+}
+.dash-tabs { display: flex; align-items: center; gap: .1rem; flex-shrink: 0; }
+.dash-tab-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: .4rem .7rem .45rem; border: none; background: transparent;
+  font-family: inherit; font-size: .7rem; font-weight: 600;
+  color: var(--t3); cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -1.5px; transition: color var(--ease), border-color var(--ease); white-space: nowrap;
+}
+.dash-tab-btn:hover { color: var(--t2); }
+.dash-tab-btn.on    { color: var(--bl); border-bottom-color: var(--bl); }
+.dash-tab-count {
+  background: var(--bd); color: var(--t2); font-size: .54rem; font-weight: 700;
+  padding: 1px 5px; border-radius: 10px; min-width: 14px; text-align: center;
+}
+.dash-tab-btn.on .dash-tab-count { background: var(--bl-lt); color: var(--bl); }
+
+.dash-tab-actions {
+  display: flex; align-items: center; gap: .4rem; flex-shrink: 0; padding-bottom: 1.5px;
+}
+
+/* Search — pill style with subtle glow */
+.dash-search-wrap {
+  display: flex; align-items: center;
+  background: var(--s2); border: 1.5px solid var(--bd);
+  border-radius: 20px; overflow: hidden; transition: all var(--ease); width: 200px;
+}
+.dash-search-wrap:focus-within {
+  border-color: var(--bl); background: #fff;
+  box-shadow: 0 0 0 3px var(--bl-lt);
+}
+.dash-search-ico {
+  width: 12px; height: 12px; color: var(--t3); margin: 0 8px 0 10px; flex-shrink: 0;
+  transition: color var(--ease);
+}
+.dash-search-wrap:focus-within .dash-search-ico { color: var(--bl); }
+.dash-search-inp {
+  flex: 1; border: none; background: none; padding: 6px 0;
+  font-family: inherit; font-size: .7rem; color: var(--t1); outline: none; min-width: 0;
+}
+.dash-search-inp::placeholder { color: var(--t3); }
+.dash-search-clear {
+  display: flex; align-items: center; background: none; border: none;
+  padding: 0 10px; color: var(--t3); cursor: pointer; font-size: .72rem;
+  transition: color var(--ease);
+}
+.dash-search-clear:hover { color: var(--rd); }
+
+.dash-refresh-btn {
+  background: none; border: 1.5px solid var(--bd); border-radius: 7px;
+  padding: 5px 7px; cursor: pointer; color: var(--t3); display: flex;
+  align-items: center; transition: all var(--ease); flex-shrink: 0;
+}
+.dash-refresh-btn:hover { border-color: var(--bl); color: var(--bl); }
+
+.dash-result-info {
+  font-size: .62rem; color: var(--t3); padding: 0 0 .35rem; font-weight: 600;
+}
+
+/* Content */
+.dash-content { display: flex; flex-direction: column; gap: .4rem; }
+
+/* Empty */
+.dash-empty {
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  padding: 3rem 1rem; font-size: .75rem; color: var(--t2); text-align: center;
+}
+
+/* Order cards */
+.dash-ord-card {
+  background: var(--sf); border: 1.5px solid var(--bd);
+  border-radius: 10px; overflow: hidden; transition: border-color var(--ease), box-shadow var(--ease);
+}
+.dash-ord-card:hover { border-color: var(--bl-md); box-shadow: 0 2px 8px rgba(37,99,235,.06); }
+.dash-ord-card.open  { border-color: var(--bl); box-shadow: 0 2px 12px rgba(37,99,235,.1); }
+
+.dash-ord-hdr {
+  display: flex; align-items: flex-start; gap: .6rem;
+  padding: .6rem .8rem; cursor: pointer; user-select: none;
+  transition: background var(--ease);
+}
+.dash-ord-hdr:hover  { background: var(--s2); }
+.dash-ord-hdr-l { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.dash-ord-hdr-r { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.dash-ord-ref   { font-size: .73rem; font-weight: 700; color: var(--t1);
+                  display: flex; align-items: center; gap: 5px; }
+.dash-ord-client{ font-size: .66rem; color: var(--t2); font-weight: 500; }
+.dash-ord-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 1px; }
+.dash-ord-total { font-size: .75rem; font-weight: 700; color: var(--bl); }
+.dash-ord-ttc   { font-size: .59rem; color: var(--t3); }
+.dash-ord-date  { font-size: .57rem; color: var(--t3); margin-top: 2px; }
+
+.dash-st-badge {
+  font-size: .55rem; font-weight: 700; padding: 2px 7px;
+  border-radius: 10px; border: 1px solid; text-transform: capitalize; flex-shrink: 0;
+}
+.brf-ref-chip {
+  font-size: .58rem; font-weight: 800; font-family: 'Courier New', monospace;
+  letter-spacing: .05em; color: var(--bl, #2563eb);
+  background: var(--bl-lt, #ebf2ff); border: 1px solid var(--bl-md, #bfdbfe);
+  padding: 1px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0;
+}
+.dash-item-chip {
+  font-size: .58rem; font-weight: 600; color: var(--t2);
+  background: var(--s2); border: 1px solid var(--bd);
+  padding: 1px 7px; border-radius: 10px; white-space: nowrap;
+  display: inline-flex; align-items: center;
+}
+.dash-item-more { color: var(--t3); }
+
+.dash-chev {
+  width: 14px; height: 14px; color: var(--t3); flex-shrink: 0;
+  transition: transform .18s; margin-top: 2px;
+}
+.dash-ord-card.open .dash-chev { transform: rotate(180deg); }
+
+/* Expanded body — single column */
+.dash-ord-body {
+  display: none; padding: .65rem .85rem .8rem;
+  border-top: 1px solid var(--bd); background: var(--s2);
+}
+.dash-ord-card.open .dash-ord-body { display: block; }
+
+.dash-section-lbl {
+  font-size: .55rem; font-weight: 700; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .8px; margin-bottom: 5px;
+}
+.dash-client-grid { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 6px; }
+.dash-client-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: .66rem; color: var(--t2);
+}
+.dash-client-note {
+  font-size: .64rem; color: var(--am); background: #fffbeb;
+  border: 1px solid #fde68a; border-radius: 5px;
+  padding: 4px 8px; display: flex; align-items: center; gap: 5px; margin-top: 4px;
+}
+.dash-client-note svg { width: 10px; height: 10px; flex-shrink: 0; }
+
+.dash-detail-items { display: flex; flex-direction: column; gap: 0; }
+.dash-detail-row {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem;
+  padding: .3rem 0; border-bottom: 1px solid var(--bd);
+}
+.dash-detail-row:last-child { border-bottom: none; }
+.dash-detail-name { font-size: .67rem; font-weight: 600; color: var(--t1); }
+.dash-detail-spec { font-size: .59rem; color: var(--t3); margin-top: 1px; }
+.dash-detail-note { font-size: .59rem; color: var(--am); font-style: italic; }
+
+.dash-totals-wrap { margin-top: 6px; border-top: 1px solid var(--bd); padding-top: 5px; }
+.dash-totals-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: .66rem; padding: .18rem 0;
+}
+.dash-totals-ttc {
+  font-size: .71rem; border-top: 1.5px solid var(--bd);
+  margin-top: .2rem; padding-top: .3rem; font-weight: 700;
+}
+
+/* Card footer: status pills + action buttons */
+.dash-body-footer {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: .6rem; margin-top: .7rem; padding-top: .6rem;
+  border-top: 1px solid var(--bd); flex-wrap: wrap;
+}
+.dash-st-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.dash-st-pill {
+  font-size: .57rem; font-weight: 700; padding: 1px 7px;
+  border-radius: var(--r); border: 1.5px solid var(--bd); cursor: pointer;
+  background: var(--sf); color: var(--t3); transition: all var(--ease);
+  font-family: inherit; white-space: nowrap; line-height: 1.5;
+}
+.dash-st-pill:hover { border-color: var(--t2); color: var(--t2); }
+.dash-st-pill.act { font-weight: 800; }
+
+.dash-action-btns { display: flex; gap: .35rem; flex-wrap: wrap; }
+.dash-act-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 5px 9px; border-radius: 6px; border: 1.5px solid var(--bd);
+  font-family: inherit; font-size: .62rem; font-weight: 700; cursor: pointer;
+  background: var(--sf); color: var(--t2); transition: all var(--ease);
+}
+.dash-act-btn svg { width: 11px; height: 11px; flex-shrink: 0; }
+.dash-act-pdf { color: var(--bl); border-color: var(--bl-md); background: var(--bl-lt); }
+.dash-act-pdf:hover { background: #dbeafe; }
+.dash-act-wa  { color: #16a34a; border-color: #bbf7d0; background: #f0fdf4; }
+.dash-act-wa:hover { background: #dcfce7; }
+.dash-act-mail { color: #7c3aed; border-color: #ddd6fe; background: #f5f3ff; }
+.dash-act-mail:hover { background: #ede9fe; }
+.dash-act-mail.disabled { opacity:.4; cursor:not-allowed; pointer-events:none; }
+
+/* Clients tab */
+.dash-clients-list { display: flex; flex-direction: column; gap: .4rem; }
+.dash-cli-card {
+  display: flex; align-items: center; gap: .7rem;
+  background: var(--sf); border: 1.5px solid var(--bd);
+  border-radius: 9px; padding: .6rem .8rem;
+  transition: border-color var(--ease);
+}
+.dash-cli-card:hover { border-color: var(--bl-md); }
+.dash-cli-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bl-lt); color: var(--bl); font-size: .82rem;
+  font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.dash-cli-info  { flex: 1; min-width: 0; }
+.dash-cli-name  { font-size: .74rem; font-weight: 700; color: var(--t1); }
+.dash-cli-meta  { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+.dash-cli-meta span { font-size: .62rem; color: var(--t3); }
+.dash-cli-adr   { font-size: .6rem; color: var(--t3); margin-top: 2px; }
+.dash-cli-wa {
+  width: 30px; height: 30px; border-radius: 7px; background: #f0fdf4;
+  border: 1.5px solid #bbf7d0; color: #16a34a; display: flex;
+  align-items: center; justify-content: center; text-decoration: none;
+  flex-shrink: 0; transition: background var(--ease);
+}
+.dash-cli-wa:hover { background: #dcfce7; }
+.dash-cli-wa svg { width: 14px; height: 14px; }
+
+/* Sidebar home button */
+.sb-home-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: .45rem .7rem; margin: .5rem .55rem .2rem;
+  border-radius: 7px; border: 1.5px solid var(--bd);
+  background: var(--sf); font-family: inherit; font-size: .71rem;
+  font-weight: 600; color: var(--t2); cursor: pointer;
+  transition: all var(--ease); width: calc(100% - 1.1rem);
+}
+.sb-home-btn svg { width: 13px; height: 13px; color: var(--t3); flex-shrink: 0; }
+.sb-home-btn:hover { border-color: var(--bl); color: var(--bl); }
+.sb-home-btn:hover svg { color: var(--bl); }
+.sb-home-btn.on { background: var(--bl-lt); border-color: var(--bl-md); color: var(--bl); }
+.sb-home-btn.on svg { color: var(--bl); }
+
+</style>
+</head>
+<body>
+
+<!-- ══ ADMIN TOOLBAR ══════════════════════════════════════ -->
+<div class="adm-tb" id="admTb">
+  <!-- Logo — populated by ADMIN._syncLogo() on boot and on shop.logo_svg change -->
+  <div class="adm-tb-logo" id="admLogoSlot">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 394.5 116.2" style="height:20px;width:auto;display:block">
+  <path fill="#2463EB" d="M115,0v24.1c0,7.9-6.4,14.2-14.2,14.2H76.7V0H115z M38.3,0H0v115h38.3V76.7h24.6c7.6,0,13.8-6.2,13.8-13.8V38.3H38.3V0z"/>
+  <path fill="#606060" d="M100.1,114.5H76.5v-38h38v23.6C114.5,108.1,108.1,114.5,100.1,114.5z M175.2,116.2c9.2,0,17.5-1.9,24.9-5.8c7.4-3.8,13.1-9.4,17.4-16.6c4.2-7.2,6.3-15.6,6.3-25.1c0-9.6-2.1-17.9-6.3-25c-4.2-7.1-10-12.6-17.3-16.5c-7.3-3.8-15.6-5.8-24.8-5.8c-9.2,0-17.5,1.9-24.8,5.8c-7.3,3.8-13.1,9.3-17.3,16.5c-4.2,7.1-6.3,15.5-6.3,25c0,9.7,2.1,18.1,6.3,25.2c4.2,7.1,9.9,12.6,17.2,16.5C157.7,114.3,165.9,116.2,175.2,116.2z M175.2,88.2c-4.5,0-8.2-1.6-11-4.9c-2.9-3.3-4.3-8.1-4.3-14.5c0-6.3,1.5-11,4.4-14.3s6.6-4.9,11-4.9c4.4,0,8.1,1.6,11.1,4.9c3,3.3,4.5,8.1,4.5,14.3c0,6.3-1.5,11.1-4.5,14.4C183.4,86.5,179.7,88.2,175.2,88.2z M282.1,87.5c-2.7,0-4.7-0.5-5.8-1.6c-1.2-1.1-1.7-2.9-1.7-5.4v-31h16.8V22.6h-16.8V0.2H242v22.4h-11.4v26.8H242v30.5c0,23.4,11.8,35.1,35.4,35.1h14V87.5H282.1z M394.5,67.8c0-9.4-2-17.6-5.9-24.6c-4-7-9.4-12.3-16.5-16.1c-7-3.7-15.1-5.6-24.2-5.6c-9.2,0-17.4,1.9-24.5,5.8c-7.1,3.8-12.6,9.3-16.6,16.4c-4,7.1-5.9,15.5-5.9,25.1c0,9.7,2,18.1,6,25.2c4,7.1,9.6,12.6,16.6,16.5c7.1,3.8,15.2,5.8,24.3,5.8c7.6,0,14.5-1.4,20.8-4.3c6.3-2.9,11.4-6.8,15.6-11.8c4.1-5,6.9-10.7,8.3-17h-34.4c-2.3,4.8-6.2,7.2-11.5,7.2c-3.8,0-7-1.2-9.5-3.7c-2.5-2.5-3.9-6.2-4.2-11.3h61.1C394.4,72.8,394.5,70.3,394.5,67.8z M333.1,59.7c0.8-4.2,2.4-7.3,4.9-9.5c2.5-2.1,5.8-3.2,9.7-3.2c4,0,7.2,1.1,9.9,3.4c2.6,2.3,4,5.4,4,9.3H333.1z"/>
+</svg>
+  </div>
+
+  <div class="adm-tb-sep"></div>
+
+  <!-- Nav buttons -->
+  <button class="adm-tb-navbtn on" id="admBtnDash" onclick="ADMIN.goToDash()" title="Dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+  </button>
+  <button class="adm-tb-navbtn" id="admBtnSettings" onclick="ADMIN.toggleNav()" title="Paramètres">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  </button>
+  <button class="adm-tb-navbtn" id="admBtnCat" onclick="ADMIN.goToProducts()" title="Catalogue">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+  </button>
+
+  <!-- Right: desktop = full status row; mobile = dot + cart only -->
+  <div style="flex:1"></div>
+  <!-- Desktop right panel -->
+  <div class="adm-tb-r" id="admTbOverflow">
+    <span class="adm-saved" id="admSaved"></span>
+    <div class="adm-tb-db">
+      <span class="sb-db-dot" id="dbDot"></span>
+      <span class="sb-db-st" id="dbStatus" title="">—</span>
+    </div>
+    <div class="sb-db-toggle">
+      <button class="sb-db-btn" id="dbBtnJson" onclick="DB_MOD.setSource('json')">JSON</button>
+      <button class="sb-db-btn on" id="dbBtnSupa" onclick="DB_MOD.setSource('supabase')">Supabase</button>
+    </div>
+    <input type="file" id="dbFile" accept=".json" style="display:none" onchange="DB_MOD.onFile(this)">
+    <span style="display:none" id="admSourceTag"></span>
+  </div>
+  <!-- Mobile: dot tappable, beside cart -->
+  <button class="adm-tb-db-dot-btn" id="admDbDotBtn" onclick="ADMIN.toggleDbOverflow()">
+    <span class="adm-tb-dot-indicator" id="admDbDotIndicator"></span>
+  </button>
+  <!-- Cart — always visible -->
+  <button class="adm-tb-icon-btn" title="Panier" class="pos-rel" onclick="CART.open()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="17" height="17"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
+    <span class="cbadge" id="cartBadge"></span>
+  </button>
+</div>
+
+<!-- ══ MOBILE DB DROPDOWN ════════════════════════════════ -->
+<div class="adm-db-dropdown" id="admDbDropdown">
+  <div class="adm-db-dropdown-row">
+    <span class="sb-db-dot" id="dbDotMob"></span>
+    <span class="adm-db-dropdown-lbl" id="dbStatusMob">—</span>
+  </div>
+  <div class="adm-db-dropdown-row">
+    <div class="sb-db-toggle" style="flex:1">
+      <button class="sb-db-btn" onclick="DB_MOD.setSource('json');ADMIN.closeDbOverflow()">JSON</button>
+      <button class="sb-db-btn on" onclick="DB_MOD.setSource('supabase');ADMIN.closeDbOverflow()">Supabase</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAV OVERLAY + DRAWER ══════════════════════════════ -->
+<div class="adm-nav-ov" id="admNavOv" onclick="ADMIN.closeNav()"></div>
+<nav class="adm-nav-drawer" id="admNavDrawer">
+  <div class="adm-nav-drawer-hdr">
+    <span class="adm-nav-drawer-title">Kote</span>
+    <button class="adm-close-btn" onclick="ADMIN.closeNav()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="admNav"></div>
+</nav>
+
+<!-- ══ ADMIN MAIN ═════════════════════════════════════════ -->
+<div class="adm-main" id="admMain">
+
+  <!-- ── Settings mode: persistent nav sidebar ── -->
+  <div class="adm-settings-sidebar" id="admSettingsSidebar" style="display:none">
+    <div class="adm-settings-sidebar-hdr">
+      <span class="adm-settings-sidebar-title">Paramètres</span>
+    </div>
+    <div id="admSettingsNav"></div>
+  </div>
+
+  <!-- ── All views live inside adm-view-area ── -->
+  <div class="adm-view-area" id="admViewArea">
+
+    <!-- View: no DB loaded -->
+    <div class="center" id="vDB">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/></svg>
+      <div class="c-title" id="vDBTitle">Aucune base chargée</div>
+      <p class="c-sub" id="vDBSub">Chargez votre fichier <strong>data.json</strong></p>
+      <button class="btn btn-p" id="vDBBtn" onclick="$('dbFile').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/></svg>
+        Charger data.json
+      </button>
+    </div>
+
+    <!-- View: dashboard -->
+    <div id="vDash" style="display:none">
+      <div id="dashWrap" style="flex:1;display:flex;flex-direction:column">
+        <div class="dash-loading" id="dashBody">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+            style="width:22px;height:22px;opacity:.35;animation:spin 1s linear infinite">
+            <path d="M21 12a9 9 0 11-6.219-8.56"/>
+          </svg>
+          <span>Chargement…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: settings tab content -->
+    <div class="adm-content" id="admBody" style="display:none"></div>
+
+    <!-- View: product section builder split -->
+    <div class="adm-split" id="admSplit" style="display:none">
+      <div class="adm-split-top" id="admSplitTop">
+        <div class="adm-content adm-split-content" id="admSplitContent"></div>
+      </div>
+      <div class="adm-split-handle" id="admSplitHandle">
+        <div class="adm-split-handle-bar"></div>
+        <button class="adm-pv-toggle" id="admPvToggle" onclick="ADMIN.togglePreview()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" id="admPvChev"><polyline points="18 15 12 9 6 15"/></svg>
+          Aperçu &amp; Prix
+        </button>
+      </div>
+      <div class="adm-split-bottom" id="admSplitBottom">
+        <div class="adm-pv-left" id="admPvSelectors"><div class="adm-pv-loading">Ouvrez un produit pour voir l'aperçu</div></div>
+        <div class="adm-pv-right" id="admPvResult"></div>
+      </div>
+    </div>
+
+    <!-- Catalogue mode: sidebar + configurator -->
+    <div class="adm-cat-wrap" id="admCatWrap" style="display:none">
+      <!-- Product sidebar (real, not stub) -->
+      <nav class="sidebar" id="sidebar">
+
+        <div class="sb-foot" id="sbFoot">
+          <div class="sb-foot-row2">
+            <span>Kote · Admin</span>
+          </div>
+        </div>
+      </nav>
+      <!-- Configurator area -->
+      <div class="adm-cat-main" id="admCatMain">
+        <!-- Mobile-only sticky catalogue banner -->
+        <button class="adm-cat-banner" id="admCatBanner" onclick="ADMIN.toggleCatSheet()">
+          <div class="adm-cat-banner-l">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            <span class="adm-cat-banner-label" id="admCatBannerLabel">Catalogue</span>
+          </div>
+          <svg class="adm-cat-banner-chev" id="admCatBannerChev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="center" id="vEmpty" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <div class="c-title">Sélectionnez un produit</div>
+        </div>
+        <div class="cfg-area" id="vCfg" style="display:none">
+          <div class="edit-banner" id="editBanner"><span>✏️ Modification en cours</span><button class="edit-cancel" onclick="UI.cancelEdit()">Annuler</button></div>
+          <div class="cfg-hdr" id="cfgHdr"></div>
+          <div class="cfg-scroll" id="cfgScroll"></div>
+          <div class="cfg-footer" id="cfgFooter"></div>
+        </div>
+        <div class="confirm-wrap" id="vConfirm" style="display:none">
+          <div class="confirm-box" id="confirmBox"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile product picker sheet — slides up over configurator -->
+    <div class="adm-cat-sheet-ov" id="admCatSheetOv" onclick="ADMIN.closeCatSheet()"></div>
+    <div class="adm-cat-sheet" id="admCatSheet">
+      <div class="adm-cat-sheet-hdr">
+        <span class="adm-cat-sheet-title">Choisir un produit</span>
+        <button class="adm-close-btn" onclick="ADMIN.closeCatSheet()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="adm-cat-sheet-body" id="admCatSheetBody"></div>
+    </div>
+
+  </div><!-- /adm-view-area -->
+</div>
+
+<!-- ══ OVERLAYS ══════════════════════════════════════════ -->
+<div class="offline-bar" id="offlineBar" style="display:none">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.39M10.71 5.05A16 16 0 0122.56 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+  Mode hors-ligne — données mises en cache
+</div>
+<div class="hist-overlay" id="histOverlay" onclick="QUOTES.close()"></div>
+<div class="hist-drawer" id="histDrawer">
+  <div class="hist-hdr">
+    <div class="hist-hdr-l">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:15px;height:15px;color:var(--bl)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="hist-title">Historique des devis</span>
+    </div>
+    <button class="cart-x" onclick="QUOTES.close()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="hist-body" id="histBody"></div>
+</div>
+
+<!-- ══ CART DRAWER (admin catalogue mode) ══════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="CART.close()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-hdr">
+    <div class="cart-title-r">
+      <span class="cart-title">Devis / Commande</span>
+      <span class="c-count" id="cartCount">0</span>
+    </div>
+    <button class="cart-x" onclick="CART.close()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-opts" id="cartOpts" style="display:none"></div>
+  <div class="cart-footer" id="cartFooter"></div>
+</div>
+
+<!-- ══ ORDER FORM OVERLAY (admin) ═══════════════════════ -->
+<div id="ordOverlay">
+  <div id="ordBox"></div>
+</div>
+
+<!-- Stubs for backward compat -->
+<div style="display:none" id="admOverlay"></div>
+<div style="display:none" id="admPanel"></div>
+<div style="display:none" id="mobSbOverlay"></div>
+<div style="display:none" id="supaSyncSt"></div>
+
+<!-- ══ SCRIPTS — load order matters ═════════════════════
+     1. globals   → shared state, constants, helpers
+     2. config    → Supabase credentials, DEFAULT_SOURCE
+     3. db        → DB_MOD (needs config + globals)
+     4. calc      → CALC pricing engine (needs globals)
+     5. sections  → SECTIONS form registry (needs calc + globals)
+     6. sel       → SEL dispatcher + fSel (needs globals + sections + ui)
+     7. ui        → UI rendering (needs globals + calc + sections)
+     8. loader    → loadProduct, loadConception, afterCheckout (needs all above)
+     9. quotes    → QUOTES history panel (needs db)
+    10. cart      → CART (needs globals + calc + quotes + loader)
+    11. admin     → sheetSVG + ADMIN panel (needs all)
+    12. invoice   → INVOICE PDF overlay (standalone, needs config for Supabase)
+    13. boot      → DB_MOD.tryRestore() + SW + offline (must be last)
+════════════════════════════════════════════════════════ -->
+
+<script src="js/kote-types.js"></script>
+<script src="js/config.js"></script>
+<script src="js/kote-core.js"></script>
+<script src="js/catalog-sections.js"></script>
+<script src="js/catalog-ui.js"></script>
+<script src="js/catalog-briefing.js"></script>
+<script src="js/orders-cart.js"></script>
+<script src="js/orders-invoice.js"></script>
+<script src="js/orders-auth.js"></script>
+<script src="js/orders-core.js"></script>
+<script src="js/kote-ops.js"></script>
+<script src="js/admin-imposition.js"></script>
+<script src="js/admin-materials.js"></script>
+<script src="js/admin-settings.js"></script>
+<script src="js/kote-admin.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+
+<script>
+/* ── Split pane drag-to-resize ── */
+(function() {
+  let _dragging = false, _startY = 0, _startBotH = 0;
+  const handle = document.getElementById('admSplitHandle');
+  const bot    = () => document.getElementById('admSplitBottom');
+  if (!handle) return;
+  handle.addEventListener('mousedown', e => {
+    if (!bot() || bot().style.display === 'none') return;
+    _dragging = true;
+    _startY   = e.clientY;
+    _startBotH = bot().getBoundingClientRect().height;
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', e => {
+    if (!_dragging) return;
+    const delta  = _startY - e.clientY;
+    const newH   = Math.max(120, Math.min(window.innerHeight * .7, _startBotH + delta));
+    bot().style.height = newH + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    _dragging = false;
+    document.body.style.userSelect = '';
+  });
+  // Keyboard shortcut: Escape closes nav
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') ADMIN.closeNav();
+  });
+})();
+</script>
+<!-- ══ MOBILE BOTTOM NAV ════════════════════════════════ -->
+<nav class="adm-bottom-nav" id="admBottomNav">
+  <button class="adm-bottom-nav-btn on" id="admBotDash" onclick="ADMIN.goToDash()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Dashboard
+  </button>
+  <button class="adm-bottom-nav-btn" id="admBotSettings" onclick="ADMIN.toggleNav()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    Paramètres
+  </button>
+  <button class="adm-bottom-nav-btn" id="admBotCat" onclick="ADMIN.goToProducts()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+    Catalogue
+  </button>
+  <button class="adm-bottom-nav-btn" id="admBotCart" class="pos-rel" onclick="CART.open()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
+    Panier
+  </button>
+</nav>
+</body>
+</html>

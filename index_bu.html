@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Kote</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--blue:#2563EB;--text:#0f0f10;--sub:#9ca3af;--border:#e5e7eb;--bg:#ffffff;--hover:#f9fafb;--muted:#f3f4f6;--red:#ef4444}
+    html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+    body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+
+    .logo{height:26px;width:auto;margin-bottom:3rem;opacity:0;animation:up .4s ease forwards}
+
+    .wrap{width:100%;max-width:320px;opacity:0;animation:up .4s ease .1s forwards}
+    .eyebrow{font-size:.68rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin-bottom:1.4rem}
+
+    /* options */
+    .options{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.25rem}
+    .option{display:flex;align-items:center;gap:.85rem;padding:.9rem .95rem;border:1px solid var(--border);border-radius:10px;background:var(--bg);cursor:pointer;transition:background .12s,border-color .12s;width:100%;text-align:left;-webkit-tap-highlight-color:transparent}
+    .option:hover,.option:active{background:var(--hover)}
+    .option.active{border-color:var(--blue)}
+    .option.active .opt-icon{color:var(--blue)}
+    .option.active .opt-name{color:var(--blue)}
+    .opt-icon{color:#d1d5db;transition:color .12s;flex-shrink:0}
+    .opt-body{flex:1;min-width:0}
+    .opt-name{font-size:.86rem;font-weight:600;color:var(--text);transition:color .12s;display:block}
+    .opt-desc{font-size:.71rem;color:var(--sub);margin-top:1px;display:block}
+    .opt-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;transition:all .12s;display:flex;align-items:center;justify-content:center}
+    .option.active .opt-check{background:var(--blue);border-color:var(--blue)}
+    .opt-check svg{display:none}
+    .option.active .opt-check svg{display:block}
+
+    /* collapsible panels */
+    .panel{overflow:hidden;max-height:0;transition:max-height .26s ease,margin-bottom .26s ease;margin-bottom:0}
+    .panel.open{max-height:200px;margin-bottom:1.25rem}
+
+    /* password */
+    .pw-inner{position:relative}
+    .pw-inp{width:100%;border:1px solid var(--border);border-radius:9px;padding:.82rem 2.8rem .82rem 1rem;font-size:.88rem;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg);outline:none;transition:border-color .14s;letter-spacing:.06em}
+    .pw-inp::placeholder{letter-spacing:.02em;color:#d1d5db}
+    .pw-inp:focus{border-color:var(--blue)}
+    .pw-inp.err{border-color:var(--red);animation:shake .26s ease}
+    .pw-toggle{position:absolute;right:.85rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#d1d5db;padding:0;line-height:1;transition:color .12s}
+    .pw-toggle:hover{color:var(--sub)}
+    .pw-hint{display:flex;align-items:center;gap:.35rem;font-size:.67rem;color:var(--sub);margin-top:.5rem;line-height:1.4}
+    .pw-hint svg{width:11px;height:11px;flex-shrink:0;color:#d1d5db}
+    .pw-hint code{background:var(--muted);border-radius:4px;padding:1px 5px;font-size:.65rem;letter-spacing:.04em;font-family:'Courier New',monospace;color:#374151}
+    .err-msg{font-size:.7rem;color:var(--red);margin-top:.4rem;display:none}
+    .err-msg.show{display:block}
+
+    /* tracking panel */
+    .trk-row{display:flex;gap:.35rem}
+    .trk-inp{flex:1;border:1px solid var(--border);border-radius:8px;padding:.7rem .85rem;font-family:inherit;font-size:.84rem;color:var(--text);background:var(--bg);outline:none;transition:border-color .14s;text-transform:uppercase;letter-spacing:.05em;-webkit-text-size-adjust:100%}
+    .trk-inp::placeholder{text-transform:none;letter-spacing:0;color:#d1d5db}
+    .trk-inp:focus{border-color:var(--blue)}
+    .trk-sbtn{padding:.7rem .95rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.79rem;font-weight:500;cursor:pointer;transition:opacity .14s;display:flex;align-items:center;gap:.35rem;white-space:nowrap;min-height:42px}
+    .trk-sbtn:hover{opacity:.88}
+    .trk-sbtn:disabled{opacity:.4;cursor:not-allowed}
+    .trk-sbtn svg{width:12px;height:12px;flex-shrink:0}
+    .trk-fmt{font-size:.67rem;color:var(--sub);margin-top:.4rem}
+    .trk-fmt b{color:#6b7280;font-weight:500}
+    .trk-err{display:none;padding:.55rem .75rem;border:1px solid #fecaca;border-radius:7px;font-size:.72rem;color:var(--red);background:#fef2f2;margin-top:.55rem;align-items:flex-start;gap:.35rem}
+    .trk-err.on{display:flex}
+    .trk-err svg{width:12px;height:12px;flex-shrink:0;margin-top:.5px}
+    .trk-spin{display:none;justify-content:center;align-items:center;gap:.35rem;padding:.8rem 0;font-size:.7rem;color:var(--sub)}
+    .trk-spin.on{display:flex}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .trk-spin svg{animation:spin .8s linear infinite}
+    .trk-full{display:block;text-align:center;margin-top:.6rem;font-size:.69rem;color:var(--sub);text-decoration:none}
+    .trk-full:hover{color:var(--blue)}
+
+    /* main button */
+    .btn{width:100%;padding:.82rem;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:.86rem;font-weight:500;cursor:pointer;transition:opacity .14s;display:flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px}
+    .btn:hover{opacity:.88}
+
+    /* overlay result sheet */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(3px);z-index:100;align-items:flex-end;justify-content:center;padding:.75rem}
+    .overlay.on{display:flex}
+    .sheet{background:#fff;border-radius:14px 14px 10px 10px;width:100%;max-width:400px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.22);animation:sheetUp .2s ease}
+    @keyframes sheetUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem .5rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:1}
+    .sheet-ttl{font-size:.78rem;font-weight:600;color:var(--text)}
+    .sheet-close{background:none;border:none;cursor:pointer;color:var(--sub);width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:5px;transition:background .12s;padding:0}
+    .sheet-close:hover{background:var(--muted);color:var(--text)}
+    .sheet-close svg{width:14px;height:14px}
+
+    /* inline result styles (used inside the sheet) */
+    .tk-card-hdr{padding:1rem 1.1rem .85rem;display:flex;align-items:flex-start;justify-content:space-between;gap:.7rem;border-bottom:1px solid var(--border)}
+    .tk-label{font-size:.6rem;font-weight:500;color:var(--sub);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.22rem}
+    .tk-ref{font-size:.95rem;font-weight:600;color:var(--text);font-family:'Courier New',monospace;letter-spacing:.06em;line-height:1}
+    .tk-date{font-size:.67rem;color:var(--sub);margin-top:.26rem}
+    .tk-badge{display:inline-flex;align-items:center;font-size:.65rem;font-weight:600;padding:.24rem .65rem;border-radius:20px;border:1px solid;white-space:nowrap}
+    .tk-timeline{padding:.9rem 1.1rem;display:flex;flex-direction:column;border-bottom:1px solid var(--border)}
+    .tk-step{display:flex;gap:.6rem;align-items:flex-start}
+    .tk-step-node{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+    .tk-step-dot{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#d1d5db;z-index:1}
+    .tk-step-line{width:1px;background:var(--border);flex:1;min-height:14px;margin:2px 0}
+    .tk-done .tk-step-dot{background:#059669;border-color:#059669;color:#fff}
+    .tk-done .tk-step-line{background:#bbf7d0}
+    .tk-active .tk-step-dot{background:#2563eb;border-color:#2563eb;color:#fff}
+    .tk-step-body{padding-bottom:12px;flex:1}
+    .tk-step:last-child .tk-step-body{padding-bottom:0}
+    .tk-step-lbl{font-size:.77rem;font-weight:500;color:var(--sub);padding-top:.05rem}
+    .tk-done .tk-step-lbl,.tk-active .tk-step-lbl{color:var(--text)}
+    .tk-active .tk-step-lbl{font-weight:600}
+    .tk-step-sub{font-size:.67rem;color:var(--sub);margin-top:.18rem;line-height:1.4}
+    .tk-section-lbl{padding:.7rem 1.1rem .3rem;font-size:.6rem;font-weight:500;color:var(--sub);text-transform:uppercase;letter-spacing:.07em}
+    .tk-items{border-bottom:1px solid var(--border)}
+    .tk-item{display:flex;align-items:baseline;justify-content:space-between;gap:.7rem;padding:.5rem 1.1rem;border-bottom:1px solid var(--border);font-size:.77rem}
+    .tk-item:last-child{border-bottom:none}
+    .tk-item-l{display:flex;flex-direction:column;gap:.08rem;min-width:0}
+    .tk-item-name{font-weight:500;color:var(--text)}
+    .tk-item-specs{font-size:.65rem;color:var(--sub)}
+    .tk-item-qty{font-weight:600;color:var(--text);white-space:nowrap;flex-shrink:0;font-size:.72rem}
+    .tk-totals{padding:.75rem 1.1rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:.24rem}
+    .tk-trow{display:flex;justify-content:space-between;align-items:baseline;font-size:.77rem;color:var(--sub)}
+    .tk-trow-sub{font-size:.7rem}
+    .tk-trow-ttc{font-size:.86rem;font-weight:600;color:var(--text);border-top:1px solid var(--border);margin-top:.26rem;padding-top:.44rem}
+    .tk-actions{padding:.7rem 1.1rem;display:flex;gap:.4rem}
+    .tk-act-btn{display:flex;align-items:center;gap:.4rem;padding:.6rem .9rem;border:1px solid var(--border);border-radius:7px;font-family:inherit;font-size:.75rem;font-weight:500;color:var(--sub);background:#fff;cursor:pointer;transition:all .14s;min-height:42px}
+    .tk-act-btn:hover{border-color:#9ca3af;color:var(--text)}
+    .tk-act-btn svg{width:11px;height:11px;flex-shrink:0}
+
+    @keyframes up{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+    @media(max-width:380px){body{padding:1.5rem}.wrap{max-width:100%}.trk-row{flex-direction:column}.trk-sbtn{justify-content:center}}
+  </style>
+</head>
+<body>
+
+  <div id="indexLogoSlot" class="logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 74" style="height:26px;width:auto;display:block">
+    <g transform="translate(0,-1) scale(0.598)">
+      <path fill="#2b68e8" d="M40.54,1.62H0V123.26H40.54V82.71H62.85A18.24,18.24,0,0,0,81.09,64.47V42.17H40.54Z"/>
+      <path fill="#2b68e8" d="M81.09,1.62V42.17h22A18.57,18.57,0,0,0,121.63,23.6v-22Z"/>
+      <path fill="#2b68e8" d="M81.09,123.26h22a18.57,18.57,0,0,0,18.57-18.57v-22H81.09Z"/>
+    </g>
+    <text x="79" y="57" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="54" fill="#3c3c3c" letter-spacing="-1.5">ote</text>
+    </svg>
+  </div>
+
+  <div class="wrap">
+    <div class="eyebrow">Choisir un profil</div>
+
+    <div class="options">
+      <button class="option active" id="optClient" onclick="sel('client')">
+        <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <span class="opt-body"><span class="opt-name">Client</span><span class="opt-desc">Commandes, devis &amp; configurateur</span></span>
+        <span class="opt-check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>
+      </button>
+      <button class="option" id="optAdmin" onclick="sel('admin')">
+        <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/></svg></span>
+        <span class="opt-body"><span class="opt-name">Administrateur</span><span class="opt-desc">Gestion de la plateforme</span></span>
+        <span class="opt-check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>
+      </button>
+      <button class="option" id="optTrack" onclick="sel('track')">
+        <span class="opt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></span>
+        <span class="opt-body"><span class="opt-name">Suivi commande</span><span class="opt-desc">Rechercher l'état d'une commande</span></span>
+        <span class="opt-check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span>
+      </button>
+    </div>
+
+    <!-- Admin password panel -->
+    <div class="panel" id="pwPanel">
+      <div class="pw-inner">
+        <input class="pw-inp" type="password" id="pwInput" placeholder="Mot de passe"
+          onkeydown="if(event.key==='Enter')go()" oninput="clearErr()" autocomplete="current-password"/>
+        <button class="pw-toggle" onclick="togglePw()" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="err-msg" id="errMsg">Mot de passe incorrect.</div>
+      <div class="pw-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Usage temporaire — indice : <code>admin</code>
+      </div>
+    </div>
+
+    <!-- Tracking panel -->
+    <div class="panel" id="trkPanel">
+      <div>
+        <div class="trk-row">
+          <input class="trk-inp" id="idxInp" type="text" placeholder="Réf. commande"
+            autocomplete="off" autocapitalize="characters"
+            onkeydown="if(event.key==='Enter')idxSearch()">
+          <button class="trk-sbtn" id="idxBtn" onclick="idxSearch()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            Chercher
+          </button>
+        </div>
+        <div class="trk-fmt">Format : <b>KTE-XXXXXX</b></div>
+        <div class="trk-err" id="idxErr">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="idxErrMsg">Introuvable.</span>
+        </div>
+        <div class="trk-spin" id="idxSpin">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" style="opacity:.35"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+          Recherche…
+        </div>
+        <a href="tracking.html" class="trk-full">Ouvrir la page dédiée →</a>
+      </div>
+    </div>
+
+    <button class="btn" id="btnGo" onclick="go()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span id="btnLabel">Accéder</span>
+    </button>
+  </div>
+
+  <!-- Result overlay -->
+  <div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
+    <div class="sheet">
+      <div class="sheet-hdr">
+        <div class="sheet-ttl" id="sheetTitle">Suivi de commande</div>
+        <button class="sheet-close" onclick="closeSheet()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="sheetBody"></div>
+    </div>
+  </div>
+
+<script src="js/kote-types.js"></script>
+<script src="js/config.js"></script>
+<script src="js/kote-core.js"></script>
+<script src="js/catalog-sections.js"></script>
+<script src="js/catalog-ui.js"></script>
+<script src="js/catalog-briefing.js"></script>
+<script>
+  const PW = 'admin';
+  let role = 'client';
+
+  function sel(r) {
+    role = r;
+    ['client','admin','track'].forEach(k => {
+      const id = 'opt' + k.charAt(0).toUpperCase() + k.slice(1);
+      document.getElementById(id).classList.toggle('active', r===k);
+    });
+    document.getElementById('pwPanel').classList.toggle('open',  r==='admin');
+    document.getElementById('trkPanel').classList.toggle('open', r==='track');
+    document.getElementById('btnGo').style.display = r==='track' ? 'none' : 'flex';
+    clearErr();
+    if (r==='admin') setTimeout(()=>document.getElementById('pwInput').focus(), 290);
+    if (r==='track') setTimeout(()=>document.getElementById('idxInp').focus(), 290);
+  }
+
+  function go() {
+    if (role==='client') { location.href='frontpage.html'; return; }
+    const inp = document.getElementById('pwInput');
+    if (inp.value===PW) { location.href='admin.html'; return; }
+    inp.classList.add('err');
+    document.getElementById('errMsg').classList.add('show');
+    inp.value='';
+    setTimeout(()=>inp.classList.remove('err'),280);
+    inp.focus();
+  }
+
+  function clearErr() {
+    document.getElementById('pwInput').classList.remove('err');
+    document.getElementById('errMsg').classList.remove('show');
+  }
+
+  function togglePw() {
+    const i = document.getElementById('pwInput');
+    i.type = i.type==='password'?'text':'password';
+  }
+
+  /* ── Tracking — delegates to TRK (kote-tracking.js) ── */
+  async function idxSearch() {
+    const ref = document.getElementById('idxInp').value.trim().toUpperCase();
+    if (!ref) { document.getElementById('idxInp').focus(); return; }
+    const btn  = document.getElementById('idxBtn');
+    const spin = document.getElementById('idxSpin');
+    const err  = document.getElementById('idxErr');
+    err.className = 'trk-err'; btn.disabled = true; spin.className = 'trk-spin on';
+    try {
+      const ord = await TRK.lookup(ref);
+      if (!ord) {
+        document.getElementById('idxErrMsg').innerHTML = '<b>' + ref + '</b> introuvable.';
+        err.className = 'trk-err on';
+      } else {
+        document.getElementById('sheetTitle').textContent = 'Commande ' + ord.ref;
+        document.getElementById('sheetBody').innerHTML =
+          TRK.buildResultHTML(ord, { resetFn: 'closeSheet()' });
+        document.getElementById('overlay').className = 'overlay on';
+      }
+    } catch(e) {
+      document.getElementById('idxErrMsg').textContent = 'Erreur : ' + e.message;
+      err.className = 'trk-err on';
+    } finally {
+      btn.disabled = false; spin.className = 'trk-spin';
+    }
+  }
+
+  function closeSheet() {
+    document.getElementById('overlay').className = 'overlay';
+    document.getElementById('sheetBody').innerHTML = '';
+    document.getElementById('idxInp').value = '';
+    document.getElementById('idxErr').className = 'trk-err';
+  }
+
+  /* ── Sync logo + title from DB ── */
+  APP.whenReady(function(db) {
+    var name = db && db.shop && db.shop.name;
+    var svg  = db && db.shop && db.shop.logo_svg && db.shop.logo_svg.trim();
+    if (name) document.title = name;
+    if (svg && svg.startsWith('<svg')) {
+      var slot = document.getElementById('indexLogoSlot');
+      if (slot) {
+        var norm = svg.replace(/<svg([^>]*)>/i, function(m, a) {
+          var c = a.replace(/\s*(width|height|style)\s*=\s*(?:"[^"]*"|'[^']*')/gi, '');
+          return '<svg' + c + ' style="height:26px;width:auto;display:block">';
+        });
+        slot.innerHTML = norm;
+      }
+    }
+  });
+</script>
+</body>
+</html>
